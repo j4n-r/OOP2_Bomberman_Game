@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+import javax.swing.SwingUtilities;
+
 import mvc.model.BreakableCell;
 import mvc.model.Cell;
 import mvc.model.Player;
@@ -24,6 +26,7 @@ public class GameController implements Runnable {
     private PlayerController playerController;
     private Player player1;
     private Player player2;
+    public String gameStatus;
 
     public GameController() {
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
@@ -31,14 +34,13 @@ public class GameController implements Runnable {
         gameField = new Cell[mapHeight][mapWidth];
 
         initializeGameField();
+        gamePanel.setGameField(gameField);
         gameFrame.add(gamePanel);
         gameFrame.setVisible(true);
-        // Debugging focus
         playerController = new PlayerController(player1, player2, this);
         gamePanel.addKeyListener(playerController);
         gamePanel.setFocusable(true);
         gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
-        // p
         gamePanel.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -50,7 +52,9 @@ public class GameController implements Runnable {
                 System.out.println("GamePanel lost focus");
             }
         });
+        gameStatus = "RUNNING";
         startGameThread();
+
     }
 
     private void startGameThread() {
@@ -82,8 +86,8 @@ public class GameController implements Runnable {
 
         // loop to populate the cellGrid based on the layout
         int playerNumber = 1;
-        for (int i = 0; i < mapHeight; i++) {
-            for (int j = 0; j < mapWidth; j++) {
+        for (int i = 0; i < mapWidth; i++) {
+            for (int j = 0; j < mapHeight; j++) {
                 switch (layout[i][j]) {
                     case 'P': // cell where a player starts
                         Player player = new Player(i, j, playerNumber);
@@ -114,7 +118,6 @@ public class GameController implements Runnable {
                         gameField[i][j] = breakableCell;
                         break;
                 }
-                gamePanel.add(gameField[i][j]);
             }
         }
     }
@@ -122,7 +125,13 @@ public class GameController implements Runnable {
     @Override
     public void run() {
         // Main game loop
-        while (gameThread != null) {
+        while (gameStatus == "RUNNING") {
+            // if (player1.getHealth() == 0) {
+            // gameStatus = "STOPPED";
+            // }
+            // if (player2.getHealth() == 0) {
+            // gameStatus = "STOPPED";
+            // }
             long startTime = System.nanoTime();
 
             // Update game state
@@ -146,15 +155,92 @@ public class GameController implements Runnable {
     }
 
     private void update() {
-        // TODO: Update game state logic
-    }
-
-    private void render() {
-        // TODO: Render game state logic
         gamePanel.repaint();
     }
 
-    public static void main(String[] args) {
-        new GameController();
+    private void render() {
     }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new GameController();
+        });
+    }
+
+    public GamePanel getGamePanel() {
+        return gamePanel;
+    }
+
+    public void setGamePanel(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
+    }
+
+    public GameFrame getGameFrame() {
+        return gameFrame;
+    }
+
+    public void setGameFrame(GameFrame gameFrame) {
+        this.gameFrame = gameFrame;
+    }
+
+    public int getMapHeight() {
+        return mapHeight;
+    }
+
+    public int getMapWidth() {
+        return mapWidth;
+    }
+
+    public int getCellSize() {
+        return cellSize;
+    }
+
+    public Cell[][] getGameField() {
+        return gameField;
+    }
+
+    public void setGameField(Cell[][] gameField) {
+        this.gameField = gameField;
+    }
+
+    public Thread getGameThread() {
+        return gameThread;
+    }
+
+    public void setGameThread(Thread gameThread) {
+        this.gameThread = gameThread;
+    }
+
+    public int getFPS() {
+        return FPS;
+    }
+
+    public void setFPS(int fPS) {
+        FPS = fPS;
+    }
+
+    public PlayerController getPlayerController() {
+        return playerController;
+    }
+
+    public void setPlayerController(PlayerController playerController) {
+        this.playerController = playerController;
+    }
+
+    public Player getPlayer1() {
+        return player1;
+    }
+
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;
+    }
+
+    public Player getPlayer2() {
+        return player2;
+    }
+
+    public void setPlayer2(Player player2) {
+        this.player2 = player2;
+    }
+
 }

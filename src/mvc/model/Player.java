@@ -6,14 +6,30 @@ public class Player extends Cell {
     private int xPos;
     private int yPos;
     private int playerNumber;
+    private String direction;
+    private int health;
 
     public Player(int xPos, int yPos, int playerNumber) {
         super(xPos, yPos);
         this.xPos = xPos;
+        this.direction = "UP";
         this.yPos = yPos;
         this.playerNumber = playerNumber;
+        this.health = 1;
 
         this.setBackground(Color.BLUE);
+    }
+
+    public void setPlayerNumber(int playerNumber) {
+        this.playerNumber = playerNumber;
+    }
+
+    public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
     }
 
     public int getPlayerNumber() {
@@ -34,6 +50,14 @@ public class Player extends Cell {
 
     public void setyPos(int yPos) {
         this.yPos = yPos;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
     }
 
 }
