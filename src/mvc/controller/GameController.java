@@ -5,8 +5,10 @@ import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import mvc.model.Bomb;
 import mvc.model.BreakableCell;
 import mvc.model.Cell;
 import mvc.model.Player;
@@ -16,13 +18,6 @@ import mvc.view.GamePanel;
 import mvc.view.MenuPanel;
 
 public class GameController implements Runnable {
-    public String getGameStatus() {
-        return gameStatus;
-    }
-
-    public void setGameStatus(String gameStatus) {
-        this.gameStatus = gameStatus;
-    }
 
     private GamePanel gamePanel;
     private GameFrame gameFrame;
@@ -36,20 +31,66 @@ public class GameController implements Runnable {
     private Player player1;
     private Player player2;
     public String gameStatus;
+    private MenuPanel menuPanel;
+    private int playerNumber;
 
     public GameController() {
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
+        menuPanel = new MenuPanel(this);
+        gameFrame.addPanel(menuPanel, "Menu");
+        startGameThread();
+        gameFrame.showPanel("Menu");
+        gameFrame.setVisible(true);
+    }
+
+    public void printGameField() {
+        for (int i = 0; i < gameField.length; i++) {
+            for (int j = 0; j < gameField[0].length; j++) {
+                if (gameField[i][j] instanceof UnbreakableCell) {
+                    System.out.print("U ");
+                } else if (gameField[i][j] instanceof BreakableCell) {
+                    System.out.print("B ");
+                } else if (gameField[i][j] instanceof Bomb) {
+                    System.out.print("O ");
+                } else if (gameField[i][j] instanceof Player) {
+                    Player player = (Player) gameField[i][j];
+                    if (player == player1) {
+                        System.out.print("1 ");
+                    } else {
+                        System.out.print("2 ");
+                    }
+                } else {
+                    System.out.print(". ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    public void startNewGame() {
+        // create new instance of the gamePanel, clearing the panel did not work could
+        // be because it get referenced somewhere later
         gamePanel = new GamePanel(mapWidth, mapHeight, cellSize);
         gameField = new Cell[mapHeight][mapWidth];
-
+        // menuPanel = new MenuPanel(this);
+        // // Clear the game field completely
+        // for (int i = 0; i < mapHeight; i++) {
+        // for (int j = 0; j < mapWidth; j++) {
+        // gameField[i][j] = null;
+        // }
+        // } // Reset players to null
+        player1 = null;
+        player2 = null;
+        printGameField();
         initializeGameField();
+
         gamePanel.setGameField(gameField);
-        gameFrame.add(gamePanel);
-        gameFrame.setVisible(true);
-        playerController = new PlayerController(player1, player2, this);
-        gamePanel.addKeyListener(playerController);
+        gameFrame.addPanel(gamePanel, "Game");
+        // gameFrame.addPanel(menuPanel, "Menu");
         gamePanel.setFocusable(true);
         gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
+        //
         gamePanel.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -61,9 +102,22 @@ public class GameController implements Runnable {
                 System.out.println("GamePanel lost focus");
             }
         });
-        gameStatus = "RUNNING";
-        startGameThread();
+        // Reinitialize the game field
 
+        gameFrame.showPanel("Game");
+        gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
+        gameStatus = "RUNNING";
+    }
+
+    public void resumeGame() {
+        gameFrame.showPanel("Game");
+        gameStatus = "RUNNING";
+        gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
+    }
+
+    public void pauseGame() {
+        gameFrame.showPanel("Menu");
+        gameStatus = "PAUSED";
     }
 
     private void startGameThread() {
@@ -93,8 +147,7 @@ public class GameController implements Runnable {
                 { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
         };
 
-        // loop to populate the cellGrid based on the layout
-        int playerNumber = 1;
+        playerNumber = 1;
         for (int i = 0; i < mapWidth; i++) {
             for (int j = 0; j < mapHeight; j++) {
                 switch (layout[i][j]) {
@@ -129,27 +182,41 @@ public class GameController implements Runnable {
                 }
             }
         }
+        playerController = new PlayerController(player1, player2, this);
+        gamePanel.addKeyListener(playerController);
+        playerNumber = 1;
+
     }
 
     @Override
     public void run() {
         // Main game loop
-        while (gameStatus == "RUNNING") {
-            if (player1.getHealth() == 0) {
-                gameStatus = "STOPPED";
-                System.out.println("Player 2 Won the game");
+        while (gameThread != null) {
+            if (gameStatus == "RUNNING") {
+
+                if (player1.getHealth() == 0) {
+                    gameStatus = "STOPPED";
+                    System.out.println("Player 2 Won the game");
+                }
+                if (player2.getHealth() == 0) {
+                    gameStatus = "STOPPED";
+                    System.out.println("Player 1 Won the game");
+                }
+
+                // Update game state
+                update();
+
+                // Render game state
+                render();
+
             }
-            if (player2.getHealth() == 0) {
-                gameStatus = "STOPPED";
-                System.out.println("Player 1 Won the game");
+
+            if (gameStatus == "STOPPED") {
+
+            }
+            if (gameStatus == "PAUSED") {
             }
             long startTime = System.nanoTime();
-
-            // Update game state
-            update();
-
-            // Render game state
-            render();
 
             long endTime = System.nanoTime();
             long duration = (endTime - startTime) / 1000000;
@@ -254,4 +321,11 @@ public class GameController implements Runnable {
         this.player2 = player2;
     }
 
+    public String getGameStatus() {
+        return gameStatus;
+    }
+
+    public void setGameStatus(String gameStatus) {
+        this.gameStatus = gameStatus;
+    }
 }

@@ -18,6 +18,7 @@ public class Player extends Cell {
         this.playerNumber = playerNumber;
         this.health = 1;
         this.hasAmmo = true;
+        System.out.println("new Player created" + playerNumber + "xPos: " + xPos + "yPos: " + yPos);
 
         this.setBackground(Color.BLUE);
     }

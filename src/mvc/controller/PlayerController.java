@@ -107,35 +107,10 @@ public class PlayerController implements KeyListener {
                 setBomb(player1, player1.getxPos(), player1.getyPos());
                 break;
             case KeyEvent.VK_ESCAPE:
-
+                gameController.pauseGame();
                 break;
         }
-        printGameField();
-    }
-
-    private void printGameField() {
-        for (int i = 0; i < gameField.length; i++) {
-            for (int j = 0; j < gameField[0].length; j++) {
-                if (gameField[i][j] instanceof UnbreakableCell) {
-                    System.out.print("U ");
-                } else if (gameField[i][j] instanceof BreakableCell) {
-                    System.out.print("B ");
-                } else if (gameField[i][j] instanceof Bomb) {
-                    System.out.print("O ");
-                } else if (gameField[i][j] instanceof Player) {
-                    Player player = (Player) gameField[i][j];
-                    if (player == player1) {
-                        System.out.print("1 ");
-                    } else {
-                        System.out.print("2 ");
-                    }
-                } else {
-                    System.out.print(". ");
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
+        gameController.printGameField();
     }
 
     private void setBomb(Player player, int xPos, int yPos) {
