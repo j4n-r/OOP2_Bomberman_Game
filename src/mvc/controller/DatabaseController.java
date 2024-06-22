@@ -1,7 +1,7 @@
 package mvc.controller;
 
 import mvc.model.Cell;
-import mvc.model.Database;
+import mvc.model.OracleDsSingleton;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,7 +16,7 @@ public class DatabaseController {
     private List<Cell[][]> gameLog = new ArrayList<>();
 
     public DatabaseController() {
-        Database db = Database.getInstance();
+        OracleDsSingleton db = OracleDsSingleton.getInstance();
         try {
             dbConnection = db.getConnection();
             statement = dbConnection.createStatement();
