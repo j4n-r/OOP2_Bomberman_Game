@@ -16,6 +16,7 @@ import mvc.model.UnbreakableCell;
 import mvc.view.GameFrame;
 import mvc.view.GamePanel;
 import mvc.view.MenuPanel;
+import mvc.view.VictoryPanel;
 
 public class GameController implements Runnable {
 
@@ -32,6 +33,7 @@ public class GameController implements Runnable {
     private Player player2;
     public String gameStatus;
     private MenuPanel menuPanel;
+    private VictoryPanel victoryPanel;
     private int playerNumber;
 
     public GameController() {
@@ -120,6 +122,12 @@ public class GameController implements Runnable {
         gameStatus = "PAUSED";
     }
 
+    public void endGame(String winner) {
+        victoryPanel = new VictoryPanel(this, winner);
+        gameFrame.addPanel(victoryPanel, "Victory");
+        gameFrame.showPanel("Victory");
+    }
+
     private void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
@@ -197,9 +205,12 @@ public class GameController implements Runnable {
                 if (player1.getHealth() == 0) {
                     gameStatus = "STOPPED";
                     System.out.println("Player 2 Won the game");
+                    endGame("Player 2");
+
                 }
                 if (player2.getHealth() == 0) {
                     gameStatus = "STOPPED";
+                    endGame("Player 1");
                     System.out.println("Player 1 Won the game");
                 }
 
