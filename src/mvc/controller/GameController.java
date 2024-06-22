@@ -53,7 +53,7 @@ public class GameController implements Runnable {
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[0].length; j++) {
                 if (gameField[i][j] instanceof UnbreakableCell) {
-                    System.out.print("U ");
+                    System.out.print("# ");
                 } else if (gameField[i][j] instanceof BreakableCell) {
                     System.out.print("B ");
                 } else if (gameField[i][j] instanceof Bomb) {
@@ -66,7 +66,7 @@ public class GameController implements Runnable {
                         System.out.print("2 ");
                     }
                 } else {
-                    System.out.print(". ");
+                    System.out.print("_ ");
                 }
             }
             System.out.println();
@@ -124,12 +124,18 @@ public class GameController implements Runnable {
     public void pauseGame() {
         gameFrame.showPanel("Menu");
         gameStatus = "PAUSED";
+        databaseController.printGameLog();
+        System.out.println(databaseController.getGameLog().toString());
+
+        databaseController.loadGameLogFromDatabase();
+        System.out.println(databaseController.getOldGameLog().toString());
     }
 
     public void endGame(String winner) {
         victoryPanel = new VictoryPanel(this, winner);
         gameFrame.addPanel(victoryPanel, "Victory");
         gameFrame.showPanel("Victory");
+        databaseController.storeGameLogInDatabase();
     }
 
     private void startGameThread() {
@@ -211,7 +217,9 @@ public class GameController implements Runnable {
             long now = System.nanoTime();
             double delta = (now - lastTime) / nsPerUpdate;
             double logDelta = (now - lastLogTime) / nsPerLog;
+            if (gameStatus == "REPLAY") {
 
+            }
             if (gameStatus == "RUNNING") {
 
                 if (player1.getHealth() == 0) {
@@ -273,14 +281,29 @@ public class GameController implements Runnable {
     }
 
     private void addCurrentGameFieldToLog() {
-        Cell[][] gameFieldCopy = new Cell[mapHeight][mapWidth];
-        for (int i = 0; i < mapHeight; i++) {
-            for (int j = 0; j < mapWidth; j++) {
-                gameFieldCopy[i][j] = gameField[i][j];
+        String gameLog = "";
+        for (int i = 0; i < gameField.length; i++) {
+            for (int j = 0; j < gameField[0].length; j++) {
+                if (gameField[i][j] instanceof UnbreakableCell) {
+                    gameLog += '#';
+                } else if (gameField[i][j] instanceof BreakableCell) {
+                    gameLog += 'B';
+                } else if (gameField[i][j] instanceof Bomb) {
+                    gameLog += 'O';
+                } else if (gameField[i][j] instanceof Player player) {
+                    if (player == player1) {
+                        gameLog += '1';
+                    } else {
+                        gameLog += '2';
+                    }
+                } else {
+                    gameLog += '_';
+                }
             }
+            // Assuming that the gameLog is a List of char[][]
+
         }
-        databaseController.getGameLog().add(gameFieldCopy);
-        System.out.println("Game field added to log" + databaseController.getGameLog().size());
+        databaseController.getGameLog().add(gameLog);
     }
 
     public static void main(String[] args) {

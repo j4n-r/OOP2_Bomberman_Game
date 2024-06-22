@@ -3,6 +3,8 @@ package mvc.view;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,10 +22,20 @@ public class VictoryPanel extends JPanel {
         add(victoryMessage, BorderLayout.CENTER);
 
         backButton = new JButton("Back to Menu");
-        backButton.addActionListener(e -> gameController.pauseGame());
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameController.pauseGame();
+            }
+        });
 
         backButton = new JButton("Back to Menu");
-        backButton.addActionListener(e -> gameController.pauseGame());
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameController.pauseGame();
+            }
+        });
         add(backButton, BorderLayout.SOUTH);
         add(backButton, BorderLayout.SOUTH);
     }
