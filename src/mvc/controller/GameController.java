@@ -1,4 +1,3 @@
-
 package mvc.controller;
 
 import java.awt.Dimension;
@@ -35,11 +34,13 @@ public class GameController implements Runnable {
     private MenuPanel menuPanel;
     private VictoryPanel victoryPanel;
     private int playerNumber;
+    private DatabaseController databaseController;
 
     public GameController() {
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
         menuPanel = new MenuPanel(this);
         gameFrame.addPanel(menuPanel, "Menu");
+        databaseController = new DatabaseController();
         startGameThread();
         gameFrame.showPanel("Menu");
         gameFrame.setVisible(true);
@@ -199,7 +200,15 @@ public class GameController implements Runnable {
     @Override
     public void run() {
         // Main game loop
+        long lastTime = System.nanoTime();
+        double nsPerUpdate = 1000000000.0 / FPS;
+        long lastLogTime = System.nanoTime();
+        double nsPerLog = 1000000000.0 * 0.5; // 0.5 seconds
         while (gameThread != null) {
+            long now = System.nanoTime();
+            double delta = (now - lastTime) / nsPerUpdate;
+            double logDelta = (now - lastLogTime) / nsPerLog;
+
             if (gameStatus == "RUNNING") {
 
                 if (player1.getHealth() == 0) {
@@ -215,7 +224,16 @@ public class GameController implements Runnable {
                 }
 
                 // Update game state
-                update();
+                if (delta >= 1) {
+                    update();
+                    lastTime = now;
+                }
+
+                // Add current gameField to gameLog every 0.5 seconds
+                if (logDelta >= 1) {
+                    addCurrentGameFieldToLog();
+                    lastLogTime = now;
+                }
 
                 // Render game state
                 render();
@@ -233,6 +251,7 @@ public class GameController implements Runnable {
             long duration = (endTime - startTime) / 1000000;
             long sleepTime = (1000 / FPS) - duration;
 
+
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
@@ -248,6 +267,17 @@ public class GameController implements Runnable {
     }
 
     private void render() {
+    }
+
+    private void addCurrentGameFieldToLog() {
+        Cell[][] gameFieldCopy = new Cell[mapHeight][mapWidth];
+        for (int i = 0; i < mapHeight; i++) {
+            for (int j = 0; j < mapWidth; j++) {
+                gameFieldCopy[i][j] = gameField[i][j];
+            }
+        }
+        databaseController.getGameLog().add(gameFieldCopy);
+        System.out.println("Game field added to log" + databaseController.getGameLog().size());
     }
 
     public static void main(String[] args) {
