@@ -1,0 +1,52 @@
+
+<project name="OOP2_Bomberman_Game" default="jar" basedir=".">
+    <!-- Set global properties for this build -->
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir" value="${build.dir}/jar"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="main-class" value="mvc.controller.GameController"/>
+
+    <!-- Clean the build directory -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <!-- Create the build directory structure -->
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${jar.dir}"/>
+    </target>
+
+    <!-- Compile the source code -->
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}" includeantruntime="false">
+            <classpath>
+                <pathelement path="${src.dir}"/>
+                <fileset dir="${lib.dir}" includes="*.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <!-- Create the JAR file -->
+    <target name="jar" depends="compile">
+        <jar destfile="${jar.dir}/OOP2_Bomberman_Game.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main-class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Run the JAR file -->
+    <target name="run" depends="jar">
+        <java jar="${jar.dir}/OOP2_Bomberman_Game.jar" fork="true">
+            <classpath>
+                <fileset dir="${lib.dir}" includes="*.jar"/>
+            </classpath>
+        </java>
+    </target>
+
+    <!-- Default target -->
+    <target name="build" depends="clean,jar"/>
+</project>
