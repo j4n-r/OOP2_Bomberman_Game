@@ -5,8 +5,6 @@ import java.awt.Graphics;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import mvc.view.GameFrame;
-
 public class Bomb extends Cell {
 
     private boolean ticking;
@@ -14,26 +12,36 @@ public class Bomb extends Cell {
     private int timer;
     private int xCoordinate;
     private Cell[][] gameField;
+    private Player player;
 
-    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField) {
+    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField, Player player) {
         super(xCoordinate, yCoordinate);
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
         this.timer = timer;
         this.gameField = gameField;
+        this.player = player;
         this.startTimer();
     }
 
     private void startTimer() {
         Timer bombTimer = new Timer();
-        bombTimer.schedule(new TimerTask() {
-
+        TimerTask toggleTickingTask = new TimerTask() {
             @Override
             public void run() {
+                ticking = !ticking;
+            }
+        };
+        TimerTask explodeTask = new TimerTask() {
+            @Override
+            public void run() {
+                bombTimer.cancel();
                 explode();
             }
+        };
 
-        }, timer);
+        bombTimer.scheduleAtFixedRate(toggleTickingTask, 0, 500); // Toggle ticking every 0.5 seconds
+        bombTimer.schedule(explodeTask, timer); // Schedule explosion after the timer duration
     }
 
     public boolean isTicking() {
@@ -91,6 +99,7 @@ public class Bomb extends Cell {
                     ;
                 }
             }
+            player.setHasAmmo(true);
         }
 
         // Remove the bomb from the game field

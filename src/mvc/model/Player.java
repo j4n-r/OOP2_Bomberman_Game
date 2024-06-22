@@ -8,6 +8,7 @@ public class Player extends Cell {
     private int playerNumber;
     private String direction;
     private int health;
+    private boolean hasAmmo;
 
     public Player(int xPos, int yPos, int playerNumber) {
         super(xPos, yPos);
@@ -16,6 +17,7 @@ public class Player extends Cell {
         this.yPos = yPos;
         this.playerNumber = playerNumber;
         this.health = 1;
+        this.hasAmmo = true;
 
         this.setBackground(Color.BLUE);
     }
@@ -58,6 +60,14 @@ public class Player extends Cell {
 
     public void setHealth(int health) {
         this.health = health;
+    }
+
+    public boolean isHasAmmo() {
+        return hasAmmo;
+    }
+
+    public void setHasAmmo(boolean hasAmmo) {
+        this.hasAmmo = hasAmmo;
     }
 
 }

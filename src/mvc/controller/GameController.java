@@ -13,8 +13,17 @@ import mvc.model.Player;
 import mvc.model.UnbreakableCell;
 import mvc.view.GameFrame;
 import mvc.view.GamePanel;
+import mvc.view.MenuPanel;
 
 public class GameController implements Runnable {
+    public String getGameStatus() {
+        return gameStatus;
+    }
+
+    public void setGameStatus(String gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
     private GamePanel gamePanel;
     private GameFrame gameFrame;
     private final int mapHeight = 15;
@@ -126,12 +135,14 @@ public class GameController implements Runnable {
     public void run() {
         // Main game loop
         while (gameStatus == "RUNNING") {
-            // if (player1.getHealth() == 0) {
-            // gameStatus = "STOPPED";
-            // }
-            // if (player2.getHealth() == 0) {
-            // gameStatus = "STOPPED";
-            // }
+            if (player1.getHealth() == 0) {
+                gameStatus = "STOPPED";
+                System.out.println("Player 2 Won the game");
+            }
+            if (player2.getHealth() == 0) {
+                gameStatus = "STOPPED";
+                System.out.println("Player 1 Won the game");
+            }
             long startTime = System.nanoTime();
 
             // Update game state

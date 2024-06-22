@@ -28,6 +28,9 @@ public class PlayerController implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (gameController.getGameStatus() == "STOPPED") {
+            return;
+        }
         int keyCode = e.getKeyCode();
         // Handle key pressed event
         switch (keyCode) {
@@ -103,6 +106,9 @@ public class PlayerController implements KeyListener {
                 System.out.println("Player 1: Drop bomb");
                 setBomb(player1, player1.getxPos(), player1.getyPos());
                 break;
+            case KeyEvent.VK_ESCAPE:
+
+                break;
         }
         printGameField();
     }
@@ -133,6 +139,9 @@ public class PlayerController implements KeyListener {
     }
 
     private void setBomb(Player player, int xPos, int yPos) {
+        if (!player.isHasAmmo()) {
+            return;
+        }
         String playerDirection = player.getDirection();
 
         int bombXPos = xPos;
@@ -162,8 +171,10 @@ public class PlayerController implements KeyListener {
         if (gameField[bombYPos][bombXPos] instanceof BreakableCell) {
             return;
         } else {
+            player.setHasAmmo(false);
             // Place the bomb at the calculated position
-            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField);
+            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField, player);
+
         }
 
     }
