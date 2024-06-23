@@ -1,5 +1,8 @@
 package mvc.model;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import oracle.jdbc.pool.OracleDataSource;
 public class OracleDsSingleton {
@@ -11,7 +14,13 @@ public class OracleDsSingleton {
             ds.setDataSourceName("HWROracleDataSource");
             ds.setURL("jdbc:oracle:thin:@//wi-dbora.hwr-berlin.de:1521/dbk.hwr-berlin.de");
             ds.setUser("oop2_ss24_g2_p1");
-            ds.setPassword("oop2_ss24_g2_p1");
+            // Read password from config.txt
+            try (BufferedReader reader = new BufferedReader(new FileReader("config.txt"))) {
+                String password = reader.readLine();
+                ds.setPassword(password);
+            } catch (IOException e) {
+                System.out.println("Failed to read password from config.txt; " + e.getMessage());
+            }
         } catch (SQLException e) {
             System.out.println("connection failed; " + e.getMessage());
         }
