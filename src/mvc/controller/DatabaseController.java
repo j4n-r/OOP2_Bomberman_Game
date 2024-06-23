@@ -1,10 +1,9 @@
 package mvc.controller;
 
 import mvc.model.GameLog;
-import mvc.model.OracleDsSingleton;
+import mvc.model.Database;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseController {
@@ -16,7 +15,7 @@ public class DatabaseController {
     public DatabaseController() {
         gameLog = new GameLog();
         oldGameLog = new GameLog();
-        OracleDsSingleton db = OracleDsSingleton.getInstance();
+        Database db = Database.getInstance();
         try {
             dbConnection = db.getConnection();
             statement = dbConnection.createStatement();

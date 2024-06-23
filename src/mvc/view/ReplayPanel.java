@@ -1,22 +1,16 @@
-
 package mvc.view;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import javax.swing.JPanel;
-import mvc.controller.GameController;
-import mvc.model.Bomb;
-import mvc.model.BreakableCell;
-import mvc.model.Cell;
-import mvc.model.Player;
-import mvc.model.UnbreakableCell;
+import mvc.model.*;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class ReplayPanel extends JPanel {
 
     private int cellSize;
     private int mapHeight;
     private int mapWidth;
-    private Cell[][] gameField;
+    private Cell[][] replayField;
 
     public ReplayPanel(int mapWidth, int mapHeight, int cellSize) {
         super();
@@ -27,17 +21,18 @@ public class ReplayPanel extends JPanel {
         this.setLayout(null);
     }
 
-    public void setGameField(Cell[][] gameField) {
-        this.gameField = gameField;
+    public void setGameField(Cell[][] replayField) {
+        this.replayField = replayField;
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (gameField != null) {
+        System.out.println("painting");
+        if (replayField != null) {
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
-                    Cell cell = gameField[i][j];
+                    Cell cell = replayField[i][j];
                     if (cell instanceof UnbreakableCell) {
                         g.setColor(Color.BLACK);
                     } else if (cell instanceof BreakableCell) {

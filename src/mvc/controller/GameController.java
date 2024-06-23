@@ -3,11 +3,9 @@ package mvc.controller;
 import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import mvc.model.Bomb;
@@ -15,10 +13,7 @@ import mvc.model.BreakableCell;
 import mvc.model.Cell;
 import mvc.model.Player;
 import mvc.model.UnbreakableCell;
-import mvc.view.GameFrame;
-import mvc.view.GamePanel;
-import mvc.view.MenuPanel;
-import mvc.view.VictoryPanel;
+import mvc.view.*;
 
 public class GameController implements Runnable {
 
@@ -38,11 +33,19 @@ public class GameController implements Runnable {
     private VictoryPanel victoryPanel;
     private int playerNumber;
     private DatabaseController databaseController;
+    private ReplayPanel replayPanel;
+    private Cell[][] replayField;
+    List<String> oldGameLog;
+    private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
 
     public GameController() {
+        gameStatus = "STOPPED";
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
         menuPanel = new MenuPanel(this);
         gameFrame.addPanel(menuPanel, "Menu");
+        replayPanel  = new ReplayPanel(mapWidth, mapHeight, cellSize);
+        replayField = new Cell[mapHeight][mapWidth];
+        gameFrame.addPanel(replayPanel, "Replay");
         databaseController = new DatabaseController();
         startGameThread();
         gameFrame.showPanel("Menu");
@@ -129,6 +132,24 @@ public class GameController implements Runnable {
 
         databaseController.loadGameLogFromDatabase();
         System.out.println(databaseController.getOldGameLog().toString());
+
+        //testing
+        oldGameLog = databaseController.getOldGameLog();
+        System.out.println(oldGameLog);
+        replayField = new Cell[mapHeight][mapWidth];
+        System.out.println(replayField);
+        replayFieldCounter =0;
+
+    }
+    public void replayGame() {
+        gameFrame.showPanel("Replay");
+        oldGameLog = databaseController.getOldGameLog();
+        replayField = new Cell[mapHeight][mapWidth];
+
+
+        gameStatus = "REPLAY";
+
+
     }
 
     public void endGame(String winner) {
@@ -217,10 +238,75 @@ public class GameController implements Runnable {
             long now = System.nanoTime();
             double delta = (now - lastTime) / nsPerUpdate;
             double logDelta = (now - lastLogTime) / nsPerLog;
-            if (gameStatus == "REPLAY") {
 
+            if (gameStatus.equals("REPLAY")) {
+                String log = oldGameLog.get(replayFieldCounter);
+                System.out.println(oldGameLog);
+                System.out.println(log );
+                for (int i = replayFieldCounter; i < mapHeight; i++) {
+                    for (int j = 0; j < mapWidth; j++) {
+                        char cellType = log.charAt(j);
+                        System.out.println(cellType);
+                        switch (cellType) {
+                            case '#': // unbreakableCell
+                                replayField[i][j] = new UnbreakableCell(i, j);
+                                break;
+                            case 'B': // breakableCell
+                                replayField[i][j] = new BreakableCell(i, j);
+
+                                break;
+                            case 'O': // Bomb
+                                // Assuming default values for Bomb parameters
+                                replayField[i][j] = new Bomb(i, j, 0, replayField, null);
+
+                                break;
+                            case '1': // Player 1
+                                replayField[i][j] = new Player(i, j, 1);
+                                break;
+                            case '2': // Player 2
+                                replayField[i][j] = new Player(i, j, 2);
+                                break;
+                            default: // normal Cell
+                                replayField[i][j] = new Cell(i, j);
+                                break;
+                        }
+                    }
+
+                }
+                for (int i = 0; i < replayField.length; i++) {
+                    for (int j = 0; j < replayField [0].length; j++) {
+                        if (replayField[i][j] instanceof UnbreakableCell) {
+                            System.out.print("# ");
+                        } else if (replayField[i][j] instanceof BreakableCell) {
+                            System.out.print("B ");
+                        } else if (replayField[i][j] instanceof Bomb) {
+                            System.out.print("O ");
+                        } else if (replayField[i][j] instanceof Player) {
+                            Player player = (Player) replayField[i][j];
+                            if (player == player1) {
+                                System.out.print("1 ");
+                            } else {
+                                System.out.print("2 ");
+                            }
+                        } else {
+                            System.out.print("_ ");
+                        }
+                    }
+                    System.out.println();
+                }
+                System.out.println();
+                replayFieldCounter++;
+                System.out.println(replayFieldCounter);
+                System.out.println(Arrays.deepToString(replayField));
+
+                    replayPanel.repaint();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
-            if (gameStatus == "RUNNING") {
+            if (gameStatus.equals("RUNNING")) {
 
                 if (player1.getHealth() == 0) {
                     gameStatus = "STOPPED";
@@ -251,10 +337,10 @@ public class GameController implements Runnable {
 
             }
 
-            if (gameStatus == "STOPPED") {
+            if (gameStatus.equals("STOPPED")) {
 
             }
-            if (gameStatus == "PAUSED") {
+            if (gameStatus.equals("PAUSED")) {
             }
             long startTime = System.nanoTime();
 
@@ -281,34 +367,37 @@ public class GameController implements Runnable {
     }
 
     private void addCurrentGameFieldToLog() {
-        String gameLog = "";
+        // using stringbuilder because += creates new string objects everytime
+        StringBuilder gameLog = new StringBuilder();
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[0].length; j++) {
                 if (gameField[i][j] instanceof UnbreakableCell) {
-                    gameLog += '#';
+                    gameLog.append('#');
                 } else if (gameField[i][j] instanceof BreakableCell) {
-                    gameLog += 'B';
+                    gameLog.append('B');
                 } else if (gameField[i][j] instanceof Bomb) {
-                    gameLog += 'O';
+                    gameLog.append('O');
                 } else if (gameField[i][j] instanceof Player player) {
                     if (player == player1) {
-                        gameLog += '1';
+                        gameLog.append('1');
                     } else {
-                        gameLog += '2';
+                        gameLog.append('2');
                     }
                 } else {
-                    gameLog += '_';
+                    gameLog.append('_');
                 }
             }
-            // Assuming that the gameLog is a List of char[][]
 
         }
-        databaseController.getGameLog().add(gameLog);
+        databaseController.getGameLog().add(gameLog.toString());
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new GameController();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new GameController();
+            }
         });
     }
 

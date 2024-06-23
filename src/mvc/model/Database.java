@@ -5,10 +5,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 import oracle.jdbc.pool.OracleDataSource;
-public class OracleDsSingleton {
-    private static OracleDsSingleton dss = null;
+public class Database {
+    private static Database dss = null;
     private static OracleDataSource ds = null;
-    private OracleDsSingleton(){
+    private Database(){
         try {
             ds = new OracleDataSource();
             ds.setDataSourceName("HWROracleDataSource");
@@ -27,8 +27,8 @@ public class OracleDsSingleton {
 
     }
 
-public static OracleDsSingleton getInstance() {
-    if (dss == null) dss = new OracleDsSingleton();
+public static Database getInstance() {
+    if (dss == null) dss = new Database();
     return dss;
 }
 public Connection getConnection() throws SQLException{

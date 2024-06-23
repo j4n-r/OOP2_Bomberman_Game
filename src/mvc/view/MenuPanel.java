@@ -46,5 +46,15 @@ public class MenuPanel extends JPanel {
             }
         });
         add(exitButton);
+
+        JButton replayButton = new JButton("Replay Last Game");
+        replayButton.setBounds(350, 450, 200, 50);
+        replayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                gameController.replayGame();
+            }
+        });
+        add(replayButton);
     }
 }
