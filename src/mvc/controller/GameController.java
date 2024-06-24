@@ -244,82 +244,7 @@ public class GameController implements Runnable {
             double logDelta = (now - lastLogTime) / nsPerLog;
 
             if (gameStatus.equals("REPLAY")) {
-                String oneGameFieldString = oldGameLogList.get(replayFieldCounter);
-                System.out.println("oldGameLogList:" + oldGameLogList);
-                System.out.println("oneGameFieldString:" + oneGameFieldString);
-                int charIndex = 0;
-                char cellType;
-                if (replayFieldCounter == oldGameLogList.size() -1 ) {
-                    gameStatus = "STOPPED";
-                    System.out.println("Game Over");
-                    break;
-                }
-                for (int i = 0; i < mapHeight; i++) {
-                    for (int j = 0; j < mapWidth; j++) {
-                        try {
-                            cellType = oneGameFieldString.charAt(charIndex);
-                        } catch (StringIndexOutOfBoundsException e) {
-                            System.out.println("StringIndexOutOfBoundsException");
-                            break;
-                        }
-                        charIndex++;
-                        System.out.println(cellType);
-                        switch (cellType) {
-                            case '#': // unbreakableCell
-                                replayField[i][j] = new UnbreakableCell(i, j);
-                                break;
-                            case 'B': // breakableCell
-                                replayField[i][j] = new BreakableCell(i, j);
-                                break;
-                            case 'O': // Bomb
-                                // Assuming default values for Bomb parameters
-                                replayField[i][j] = new Bomb(i, j, 3, replayField, player1);
-                                break;
-                            case '1': // Player 1
-                                replayField[i][j] = new Player(i, j, 1);
-                                break;
-                            case '2': // Player 2
-                                replayField[i][j] = new Player(i, j, 2);
-                                break;
-                            default: // normal Cell
-                                replayField[i][j] = new Cell(i, j);
-
-                                break;
-                        }
-
-                        System.out.println(charIndex);
-                        System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
-                        System.out.println("iteration " + "i: " + i + "j: " + j);
-                        System.out.println("Char at j: " + oneGameFieldString.charAt(j));
-                    }
-
-                }
-                for (int i = 0; i < replayField.length; i++) {
-                    for (int j = 0; j < replayField[0].length; j++) {
-                        if (replayField[i][j] instanceof UnbreakableCell) {
-                            System.out.print("# ");
-                        } else if (replayField[i][j] instanceof BreakableCell) {
-                            System.out.print("B ");
-                        } else if (replayField[i][j] instanceof Bomb) {
-                            System.out.print("O ");
-                        } else if (replayField[i][j] instanceof Player) {
-                            Player player = (Player) replayField[i][j];
-                            if (player == player1) {
-                                System.out.print("1 ");
-                            } else {
-                                System.out.print("2 ");
-                            }
-                        } else {
-                            System.out.print("_ ");
-                        }
-                    }
-                    System.out.println();
-                }
-                System.out.println();
-                replayFieldCounter++;
-                System.out.println(replayFieldCounter);
-                System.out.println(Arrays.toString(replayField));
-
+                generateReplayFieldBasedOnLog();
                 replayPanel.repaint();
                 try {
                     Thread.sleep(500);
@@ -380,6 +305,92 @@ public class GameController implements Runnable {
         }
     }
 
+    private void generateReplayFieldBasedOnLog() {
+        String oneGameFieldString = oldGameLogList.get(replayFieldCounter);
+        System.out.println("oldGameLogList:" + oldGameLogList);
+        System.out.println("oneGameFieldString:" + oneGameFieldString);
+        int charIndex = 0;
+        char cellType;
+        if (replayFieldCounter == oldGameLogList.size() -1 ) {
+            gameStatus = "STOPPED";
+            try {
+                gameThread.sleep(2000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            gameFrame.showPanel("Menu");
+            System.out.println("Game Over");
+        }
+        for (int i = 0; i < mapHeight; i++) {
+            for (int j = 0; j < mapWidth; j++) {
+                try {
+                    cellType = oneGameFieldString.charAt(charIndex);
+                } catch (StringIndexOutOfBoundsException e) {
+                    System.out.println("StringIndexOutOfBoundsException");
+                    break;
+                }
+                charIndex++;
+                System.out.println(cellType);
+                switch (cellType) {
+                    case '#': // unbreakableCell
+                        replayField[i][j] = new UnbreakableCell(i, j);
+                        break;
+                    case 'B': // breakableCell
+                        replayField[i][j] = new BreakableCell(i, j);
+                        break;
+                    case 'F': // Bomb
+                        // Assuming default values for Bomb parameters
+                        replayField[i][j] = new Bomb(i, j, 3, replayField, player1);
+                    case 'O': // Bomb
+                        // Assuming default values for Bomb parameters
+                        replayField[i][j] = new Bomb(i, j, 3, replayField, player2);
+                        break;
+                    case '1': // Player 1
+                        replayField[i][j] = new Player(i, j, 1);
+                        break;
+                    case '2': // Player 2
+                        replayField[i][j] = new Player(i, j, 2);
+                        break;
+                    default: // normal Cell
+                        replayField[i][j] = new Cell(i, j);
+
+                        break;
+                }
+
+                System.out.println(charIndex);
+                System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
+                System.out.println("iteration " + "i: " + i + "j: " + j);
+                System.out.println("Char at j: " + oneGameFieldString.charAt(j));
+            }
+
+        }
+        for (int i = 0; i < replayField.length; i++) {
+            for (int j = 0; j < replayField[0].length; j++) {
+                if (replayField[i][j] instanceof UnbreakableCell) {
+                    System.out.print("# ");
+                } else if (replayField[i][j] instanceof BreakableCell) {
+                    System.out.print("B ");
+                } else if (replayField[i][j] instanceof Bomb) {
+                    System.out.print("O ");
+                } else if (replayField[i][j] instanceof Player) {
+                    Player player = (Player) replayField[i][j];
+                    if (player == player1) {
+                        System.out.print("1 ");
+                    } else {
+                        System.out.print("2 ");
+                    }
+                } else {
+                    System.out.print("_ ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+        replayFieldCounter++;
+        System.out.println(replayFieldCounter);
+        System.out.println(Arrays.toString(replayField));
+    }
+
     private void update() {
         gamePanel.repaint();
     }
@@ -396,8 +407,13 @@ public class GameController implements Runnable {
                     gameLog.append('#');
                 } else if (gameField[i][j] instanceof BreakableCell) {
                     gameLog.append('B');
-                } else if (gameField[i][j] instanceof Bomb) {
-                    gameLog.append('O');
+                } else if (gameField[i][j] instanceof Bomb ) {
+                    if (((Bomb) gameField[i][j]).getPlayer() == player1) {
+                        gameLog.append('F');
+                    }
+                    if (((Bomb) gameField[i][j]).getPlayer() == player2) {
+                        gameLog.append('O');
+                    }
                 } else if (gameField[i][j] instanceof Player player) {
                     if (player == player1) {
                         gameLog.append('1');

@@ -118,4 +118,19 @@ public class Bomb extends Cell {
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
+    public Cell[][] getGameField() {
+        return gameField;
+    }
+
+    public void setGameField(Cell[][] gameField) {
+        this.gameField = gameField;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }
