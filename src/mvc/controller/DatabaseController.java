@@ -54,6 +54,7 @@ public class DatabaseController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.out.println(oldGameLog);
     }
     public void printGameLog() {
         for (String log : gameLog) {

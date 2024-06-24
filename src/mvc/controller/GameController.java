@@ -35,21 +35,24 @@ public class GameController implements Runnable {
     private DatabaseController databaseController;
     private ReplayPanel replayPanel;
     private Cell[][] replayField;
-    List<String> oldGameLog;
+    List<String> oldGameLogList;
     private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
+    private int charIndex;
 
     public GameController() {
         gameStatus = "STOPPED";
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
         menuPanel = new MenuPanel(this);
         gameFrame.addPanel(menuPanel, "Menu");
-        replayPanel  = new ReplayPanel(mapWidth, mapHeight, cellSize);
+        replayPanel = new ReplayPanel(mapWidth, mapHeight, cellSize);
         replayField = new Cell[mapHeight][mapWidth];
         gameFrame.addPanel(replayPanel, "Replay");
         databaseController = new DatabaseController();
         startGameThread();
         gameFrame.showPanel("Menu");
         gameFrame.setVisible(true);
+        oldGameLogList = databaseController.getOldGameLog();
+
     }
 
     public void printGameField() {
@@ -134,18 +137,19 @@ public class GameController implements Runnable {
         System.out.println(databaseController.getOldGameLog().toString());
 
         //testing
-        oldGameLog = databaseController.getOldGameLog();
-        System.out.println(oldGameLog);
+        oldGameLogList = databaseController.getOldGameLog();
+        System.out.println(oldGameLogList);
         replayField = new Cell[mapHeight][mapWidth];
         System.out.println(replayField);
-        replayFieldCounter =0;
+        replayFieldCounter = 0;
 
     }
+
     public void replayGame() {
         gameFrame.showPanel("Replay");
-        oldGameLog = databaseController.getOldGameLog();
+        oldGameLogList = databaseController.getOldGameLog();
         replayField = new Cell[mapHeight][mapWidth];
-
+        replayPanel.setGameField(replayField);
 
         gameStatus = "REPLAY";
 
@@ -169,21 +173,21 @@ public class GameController implements Runnable {
         // from a csv or txt file
         // feel free to set a better layout, this is just symmetrical
         char[][] layout = {
-                { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
-                { '#', 'P', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', 'V', '#' },
-                { '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#' },
-                { '#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#' },
-                { '#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#' },
-                { '#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#' },
-                { '#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#' },
-                { '#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#' },
-                { '#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#' },
-                { '#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#' },
-                { '#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#' },
-                { '#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#' },
-                { '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#' },
-                { '#', 'V', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', 'P', '#' },
-                { '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#' },
+                {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
+                {'#', 'P', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', 'V', '#'},
+                {'#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#'},
+                {'#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#'},
+                {'#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#'},
+                {'#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#'},
+                {'#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#'},
+                {'#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#'},
+                {'#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#'},
+                {'#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#'},
+                {'#', 'X', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'X', '#'},
+                {'#', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', '#'},
+                {'#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#', 'V', '#'},
+                {'#', 'V', 'V', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'X', 'V', 'V', 'P', '#'},
+                {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         };
 
         playerNumber = 1;
@@ -240,12 +244,25 @@ public class GameController implements Runnable {
             double logDelta = (now - lastLogTime) / nsPerLog;
 
             if (gameStatus.equals("REPLAY")) {
-                String log = oldGameLog.get(replayFieldCounter);
-                System.out.println(oldGameLog);
-                System.out.println(log );
-                for (int i = replayFieldCounter; i < mapHeight; i++) {
+                String oneGameFieldString = oldGameLogList.get(replayFieldCounter);
+                System.out.println("oldGameLogList:" + oldGameLogList);
+                System.out.println("oneGameFieldString:" + oneGameFieldString);
+                int charIndex = 0;
+                char cellType;
+                if (replayFieldCounter == oldGameLogList.size() -1 ) {
+                    gameStatus = "STOPPED";
+                    System.out.println("Game Over");
+                    break;
+                }
+                for (int i = 0; i < mapHeight; i++) {
                     for (int j = 0; j < mapWidth; j++) {
-                        char cellType = log.charAt(j);
+                        try {
+                            cellType = oneGameFieldString.charAt(charIndex);
+                        } catch (StringIndexOutOfBoundsException e) {
+                            System.out.println("StringIndexOutOfBoundsException");
+                            break;
+                        }
+                        charIndex++;
                         System.out.println(cellType);
                         switch (cellType) {
                             case '#': // unbreakableCell
@@ -253,12 +270,10 @@ public class GameController implements Runnable {
                                 break;
                             case 'B': // breakableCell
                                 replayField[i][j] = new BreakableCell(i, j);
-
                                 break;
                             case 'O': // Bomb
                                 // Assuming default values for Bomb parameters
-                                replayField[i][j] = new Bomb(i, j, 0, replayField, null);
-
+                                replayField[i][j] = new Bomb(i, j, 3, replayField, player1);
                                 break;
                             case '1': // Player 1
                                 replayField[i][j] = new Player(i, j, 1);
@@ -268,13 +283,19 @@ public class GameController implements Runnable {
                                 break;
                             default: // normal Cell
                                 replayField[i][j] = new Cell(i, j);
+
                                 break;
                         }
+
+                        System.out.println(charIndex);
+                        System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
+                        System.out.println("iteration " + "i: " + i + "j: " + j);
+                        System.out.println("Char at j: " + oneGameFieldString.charAt(j));
                     }
 
                 }
                 for (int i = 0; i < replayField.length; i++) {
-                    for (int j = 0; j < replayField [0].length; j++) {
+                    for (int j = 0; j < replayField[0].length; j++) {
                         if (replayField[i][j] instanceof UnbreakableCell) {
                             System.out.print("# ");
                         } else if (replayField[i][j] instanceof BreakableCell) {
@@ -297,9 +318,9 @@ public class GameController implements Runnable {
                 System.out.println();
                 replayFieldCounter++;
                 System.out.println(replayFieldCounter);
-                System.out.println(Arrays.deepToString(replayField));
+                System.out.println(Arrays.toString(replayField));
 
-                    replayPanel.repaint();
+                replayPanel.repaint();
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
