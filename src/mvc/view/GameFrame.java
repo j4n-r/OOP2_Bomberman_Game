@@ -18,7 +18,7 @@ public class GameFrame extends JFrame {
         this.cellSize = cellSize;
 
         this.setTitle("Bomberman");
-        this.setSize(mapWidth * cellSize, mapHeight * cellSize);
+        this.setSize(mapWidth * cellSize + 8, mapHeight * cellSize + 38);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
 

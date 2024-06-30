@@ -4,19 +4,17 @@ import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.SwingUtilities;
 
-import mvc.model.Bomb;
-import mvc.model.BreakableCell;
-import mvc.model.Cell;
-import mvc.model.Player;
-import mvc.model.UnbreakableCell;
+import mvc.dao.GameLogDaoImpl;
+import mvc.model.*;
 import mvc.view.*;
 
 public class GameController implements Runnable {
 
+    private final GameLogDaoImpl gameLogDaoImpl;
+    private final GameController gameController;
     private GamePanel gamePanel;
     private GameFrame gameFrame;
     private final int mapHeight = 15;
@@ -32,14 +30,16 @@ public class GameController implements Runnable {
     private MenuPanel menuPanel;
     private VictoryPanel victoryPanel;
     private int playerNumber;
-    private DatabaseController databaseController;
+    private DBConnectionController DBConnectionController;
     private ReplayPanel replayPanel;
     private Cell[][] replayField;
-    List<String> oldGameLogList;
+    GameLog replayGameLog;
+    GameLog gameLog;
     private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
     private int charIndex;
 
     public GameController() {
+        gameController = this;
         gameStatus = "STOPPED";
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
         menuPanel = new MenuPanel(this);
@@ -47,11 +47,13 @@ public class GameController implements Runnable {
         replayPanel = new ReplayPanel(mapWidth, mapHeight, cellSize);
         replayField = new Cell[mapHeight][mapWidth];
         gameFrame.addPanel(replayPanel, "Replay");
-        databaseController = new DatabaseController();
+        DBConnectionController = new DBConnectionController();
+        gameLogDaoImpl = new GameLogDaoImpl();
         startGameThread();
         gameFrame.showPanel("Menu");
         gameFrame.setVisible(true);
-        oldGameLogList = databaseController.getOldGameLog();
+        replayGameLog = new GameLog();
+        gameLog = new GameLog();
 
     }
 
@@ -130,15 +132,13 @@ public class GameController implements Runnable {
     public void pauseGame() {
         gameFrame.showPanel("Menu");
         gameStatus = "PAUSED";
-        databaseController.printGameLog();
-        System.out.println(databaseController.getGameLog().toString());
+        System.out.println(gameLog.toString());
 
-        databaseController.loadGameLogFromDatabase();
-        System.out.println(databaseController.getOldGameLog().toString());
+        replayGameLog = gameLogDaoImpl.getGameLog();
+        System.out.println(replayGameLog.toString());
 
         //testing
-        oldGameLogList = databaseController.getOldGameLog();
-        System.out.println(oldGameLogList);
+        System.out.println(replayGameLog);
         replayField = new Cell[mapHeight][mapWidth];
         System.out.println(replayField);
         replayFieldCounter = 0;
@@ -147,7 +147,7 @@ public class GameController implements Runnable {
 
     public void replayGame() {
         gameFrame.showPanel("Replay");
-        oldGameLogList = databaseController.getOldGameLog();
+        replayGameLog = gameLogDaoImpl.getGameLog();
         replayField = new Cell[mapHeight][mapWidth];
         replayPanel.setGameField(replayField);
 
@@ -160,7 +160,7 @@ public class GameController implements Runnable {
         victoryPanel = new VictoryPanel(this, winner);
         gameFrame.addPanel(victoryPanel, "Victory");
         gameFrame.showPanel("Victory");
-        databaseController.storeGameLogInDatabase();
+        gameLogDaoImpl.saveGameLog(gameLog);
     }
 
     private void startGameThread() {
@@ -306,12 +306,13 @@ public class GameController implements Runnable {
     }
 
     private void generateReplayFieldBasedOnLog() {
-        String oneGameFieldString = oldGameLogList.get(replayFieldCounter);
-        System.out.println("oldGameLogList:" + oldGameLogList);
+        System.out.println(replayGameLog);
+        String oneGameFieldString = replayGameLog.get(replayFieldCounter);
+        System.out.println("oldGameLogList:" + replayGameLog);
         System.out.println("oneGameFieldString:" + oneGameFieldString);
         int charIndex = 0;
         char cellType;
-        if (replayFieldCounter == oldGameLogList.size() -1 ) {
+        if (replayFieldCounter == replayGameLog.size() -1 ) {
             gameStatus = "STOPPED";
             try {
                 gameThread.sleep(2000);
@@ -399,34 +400,36 @@ public class GameController implements Runnable {
     }
 
     private void addCurrentGameFieldToLog() {
-        // using stringbuilder because += creates new string objects everytime
-        StringBuilder gameLog = new StringBuilder();
+        // using stringbuilder becaus
+        // e += creates new string objects everytime
+        StringBuilder log = new StringBuilder();
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[0].length; j++) {
                 if (gameField[i][j] instanceof UnbreakableCell) {
-                    gameLog.append('#');
+                    log.append('#');
                 } else if (gameField[i][j] instanceof BreakableCell) {
-                    gameLog.append('B');
+                    log.append('B');
                 } else if (gameField[i][j] instanceof Bomb ) {
                     if (((Bomb) gameField[i][j]).getPlayer() == player1) {
-                        gameLog.append('F');
+                        log.append('F');
                     }
                     if (((Bomb) gameField[i][j]).getPlayer() == player2) {
-                        gameLog.append('O');
+                        log.append('O');
                     }
                 } else if (gameField[i][j] instanceof Player player) {
                     if (player == player1) {
-                        gameLog.append('1');
+                        log.append('1');
                     } else {
-                        gameLog.append('2');
+                        log.append('2');
                     }
                 } else {
-                    gameLog.append('_');
+                    log.append('_');
                 }
             }
 
         }
-        databaseController.getGameLog().add(gameLog.toString());
+        gameLog.add(log.toString());
+        System.out.println("added to replaygamelog " + replayGameLog);
     }
 
     public static void main(String[] args) {

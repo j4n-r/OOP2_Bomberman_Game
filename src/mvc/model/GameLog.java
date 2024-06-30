@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameLog extends ArrayList<String> {
-    private List<String> logs;
-
     public GameLog() {
-        this.logs = new ArrayList<>();
+        super();
+    }
+    public void printGameLog() {
+        for (String log : this) {
+            System.out.println(log);
+        }
     }
 
-    public void addLog(String log) {
-        this.logs.add(log);
-    }
-
-    public List<String> getLogs() {
-        return this.logs;
-    }
 }
