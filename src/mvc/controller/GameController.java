@@ -3,6 +3,8 @@ package mvc.controller;
 import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Arrays;
 
 import javax.swing.SwingUtilities;
@@ -46,6 +48,25 @@ public class GameController implements Runnable {
         gameFrame.addPanel(menuPanel, "Menu");
         replayPanel = new ReplayPanel(mapWidth, mapHeight, cellSize);
         replayField = new Cell[mapHeight][mapWidth];
+        replayPanel.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int keyCode = e.getKeyCode();
+                if (keyCode == KeyEvent.VK_ESCAPE) {
+                    gameController.pauseGame();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
         gameFrame.addPanel(replayPanel, "Replay");
         DBConnectionController = new DBConnectionController();
         gameLogDaoImpl = new GameLogDaoImpl();
@@ -147,6 +168,7 @@ public class GameController implements Runnable {
 
     public void replayGame() {
         gameFrame.showPanel("Replay");
+        replayPanel.requestFocusInWindow();
         replayGameLog = gameLogDaoImpl.getGameLog();
         replayField = new Cell[mapHeight][mapWidth];
         replayPanel.setGameField(replayField);

@@ -3,34 +3,37 @@ package mvc.model;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class Cell extends JButton {
     int xCoordinate;
     int yCoordinate;
-    private Image sprite;
+    public BufferedImage player_upImg, img, bomb1, bomb2;
+
 
     public Cell(int xCoordinate, int yCoordinate) {
         super();
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
-
-        this.setBackground(Color.GREEN);
+        this.setImage();
         this.setBorder(null);
-    }
-
-    public void loadSprite(String path) {
-        ImageIcon icon = new ImageIcon(getClass().getResource(path));
-        this.sprite = icon.getImage();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (sprite != null) {
-            g.drawImage(sprite, 0, 0, getWidth(), getHeight(), this);
+    }
+
+    public void setImage() {
+        try {
+            img = ImageIO.read(getClass().getResource("/resources/playerSprites/grass01.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -39,29 +39,40 @@ public class GamePanel extends JPanel {
                 for (int j = 0; j < mapWidth; j++) {
                     Cell cell = gameField[i][j];
                     if (cell instanceof UnbreakableCell) {
-                        g.setColor(Color.BLACK);
+                        g.drawImage(cell.img, j * cellSize, i * cellSize, cellSize, cellSize, null);
                     } else if (cell instanceof BreakableCell) {
-                        g.setColor(Color.GRAY);
+                        g.drawImage(cell.img, j * cellSize, i * cellSize, cellSize, cellSize, null);
                     } else if (cell instanceof Bomb) {
                         Bomb bomb = (Bomb) cell;
                         if (bomb.isTicking()) {
-                            g.setColor(Color.ORANGE);
+                            g.drawImage(cell.bomb1, j * cellSize, i * cellSize, cellSize, cellSize, null);
+
                         } else {
-                            g.setColor(Color.BLACK);
+                            g.drawImage(cell.bomb2, j * cellSize, i * cellSize, cellSize, cellSize, null);
+
                         }
                     } else if (cell instanceof Player) {
                         Player player = (Player) cell;
-                        if (player.getPlayerNumber() == 1) {
-                            g.setColor(Color.BLUE);
-                        } else if (player.getPlayerNumber() == 2) {
-                            g.setColor(Color.RED);
+                        switch (player.getDirection()) {
+                            case "UP":
+                                g.drawImage(player.player_upImg, j * cellSize, i * cellSize, cellSize, cellSize, null);
+                                break; 
+                            case "DOWN":
+                                g.drawImage(player.player_downImg, j * cellSize, i * cellSize, cellSize, cellSize, null);
+                                break;
+                            case "LEFT":
+                                g.drawImage(player.player_leftImg, j * cellSize, i * cellSize, cellSize, cellSize, null);
+                                break;
+                            case "RIGHT":
+                                g.drawImage(player.player_rightImg, j * cellSize, i * cellSize, cellSize, cellSize, null);
+                                break;
                         }
                     } else {
-                        g.setColor(Color.GREEN);
+                        g.drawImage(cell.img, j * cellSize, i * cellSize, cellSize, cellSize, null);
                     }
-                    g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);
+//                    g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+//                    g.setColor(Color.BLACK);
+//                    g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);
                 }
             }
         }

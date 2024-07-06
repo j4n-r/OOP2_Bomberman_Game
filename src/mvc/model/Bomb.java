@@ -1,7 +1,9 @@
 package mvc.model;
 
+import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -106,18 +108,14 @@ public class Bomb extends Cell {
         gameField[xPos][yPos] = new Cell(xPos, yPos);
 
     }
-
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (ticking) {
-            g.setColor(Color.RED);
-        } else {
-            g.setColor(Color.BLACK);
+    public void setImage() {
+        try {
+            bomb1 = ImageIO.read(getClass().getResource("/resources/playerSprites/bomb_1.png"));
+            bomb2 = ImageIO.read(getClass().getResource("/resources/playerSprites/bomb_2.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        g.fillRect(0, 0, getWidth(), getHeight());
     }
-
     public Cell[][] getGameField() {
         return gameField;
     }

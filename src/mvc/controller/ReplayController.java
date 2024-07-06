@@ -1,4 +1,4 @@
 package mvc.controller;
 
-public class ReplayController {
+public class ReplayController  {
 }

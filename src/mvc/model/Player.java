@@ -1,6 +1,10 @@
 package mvc.model;
 
-import java.awt.Color;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class Player extends Cell {
     private int xPos;
@@ -9,6 +13,8 @@ public class Player extends Cell {
     private String direction;
     private int health;
     private boolean hasAmmo;
+    public BufferedImage player_upImg, player_downImg, player_leftImg, player_rightImg;
+
 
     public Player(int xPos, int yPos, int playerNumber) {
         super(xPos, yPos);
@@ -19,9 +25,37 @@ public class Player extends Cell {
         this.health = 1;
         this.hasAmmo = true;
         System.out.println("new Player created" + playerNumber + "xPos: " + xPos + "yPos: " + yPos);
-
+        this.getPlayerImage();
         this.setBackground(Color.BLUE);
+        try {
+            if (playerNumber == 1) {
+                player_upImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player01_up.png"));
+                player_downImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player01_down.png"));
+                player_leftImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player01_left.png"));
+                player_rightImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player01_right.png"));
+            } else {
+                player_upImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player02_up.png"));
+                player_downImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player02_down.png"));
+                player_leftImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player02_left.png"));
+                player_rightImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player02_right.png"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+    public void getPlayerImage() {
+        try {
+            if (playerNumber == 1) {
+                player_upImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player01_up.png"));
+            } else {
+                player_upImg = ImageIO.read(getClass().getResource("/resources/playerSprites/player02_up.png"));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public void setPlayerNumber(int playerNumber) {
         this.playerNumber = playerNumber;
