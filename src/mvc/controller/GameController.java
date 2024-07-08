@@ -142,11 +142,15 @@ public class GameController implements Runnable {
         gameStatus = "REPLAY";
     }
 
-    public void endGame(String winner) {
+    public void endGame(String winner, Boolean replay) {
         VictoryPanel victoryPanel = new VictoryPanel(this, winner);
         gameFrame.addPanel(victoryPanel, "Victory");
         gameFrame.showPanel("Victory");
-        gameLogDaoImpl.saveGameLog(gameLog);
+
+        // flag to use the same method in a replay
+        if (!replay) {
+            gameLogDaoImpl.saveGameLog(gameLog);
+        }
     }
 
     private void startGameThread() {
@@ -246,12 +250,12 @@ public class GameController implements Runnable {
                 if (player1.getHealth() == 0) {
                     gameStatus = "STOPPED";
                     System.out.println("Player 2 Won the game");
-                    endGame("Player 2");
+                    endGame("Red", false);
 
                 }
                 if (player2.getHealth() == 0) {
                     gameStatus = "STOPPED";
-                    endGame("Player 1");
+                    endGame("Blue",false);
                     System.out.println("Player 1 Won the game");
                 }
 
@@ -307,8 +311,12 @@ public class GameController implements Runnable {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            gameFrame.showPanel("Menu");
-            System.out.println("Game Over");
+            if (oneGameFieldString.indexOf("1") != -1) {
+                endGame("Red", true);
+            } else {
+                endGame("Blue", true);
+            }
+            return;
         }
         for (int i = 0; i < mapHeight; i++) {
             for (int j = 0; j < mapWidth; j++) {
