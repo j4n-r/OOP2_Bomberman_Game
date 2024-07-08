@@ -13,7 +13,7 @@ import javax.swing.JButton;
 public class Cell extends JButton {
     int xCoordinate;
     int yCoordinate;
-    public BufferedImage player_upImg, img, bomb1, bomb2;
+    public BufferedImage  img, bomb1, bomb2;
 
 
     public Cell(int xCoordinate, int yCoordinate) {

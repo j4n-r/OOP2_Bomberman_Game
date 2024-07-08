@@ -148,7 +148,7 @@ public class PlayerController implements KeyListener {
         } else {
             player.setHasAmmo(false);
             // Place the bomb at the calculated position
-            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField, player);
+            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField, player, gameController);
 
         }
 

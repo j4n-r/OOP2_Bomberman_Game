@@ -1,5 +1,7 @@
 package mvc.model;
 
+import mvc.controller.GameController;
+
 import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -9,6 +11,7 @@ import java.util.TimerTask;
 
 public class Bomb extends Cell {
 
+    private  GameController gameController;
     private boolean ticking;
     private int yCoordinate;
     private int timer;
@@ -16,7 +19,7 @@ public class Bomb extends Cell {
     private Cell[][] gameField;
     private Player player;
 
-    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField, Player player) {
+    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField, Player player, GameController gameController) {
         super(xCoordinate, yCoordinate);
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
@@ -24,8 +27,15 @@ public class Bomb extends Cell {
         this.gameField = gameField;
         this.player = player;
         this.startTimer();
+        this.gameController = gameController;
+        this.setImage();
     }
-
+    public Bomb(int xCoordinate, int yCoordinate){
+        super(xCoordinate, yCoordinate);
+        this.xCoordinate = xCoordinate;
+        this.yCoordinate = yCoordinate;
+        this.setImage();
+    }
     private void startTimer() {
         Timer bombTimer = new Timer();
         TimerTask toggleTickingTask = new TimerTask() {
@@ -50,33 +60,7 @@ public class Bomb extends Cell {
         return ticking;
     }
 
-    public void setTicking(boolean ticking) {
-        this.ticking = ticking;
-    }
 
-    public int getyCoordinate() {
-        return yCoordinate;
-    }
-
-    public void setyCoordinate(int yCoordinate2) {
-        this.yCoordinate = yCoordinate2;
-    }
-
-    public int getTimer() {
-        return timer;
-    }
-
-    public void setTimer(int timer) {
-        this.timer = timer;
-    }
-
-    public int getxCoordinate() {
-        return xCoordinate;
-    }
-
-    public void setxCoordinate(int xCoordinate2) {
-        this.xCoordinate = xCoordinate2;
-    }
 
     protected void explode() {
 
@@ -103,7 +87,6 @@ public class Bomb extends Cell {
             }
             player.setHasAmmo(true);
         }
-
         // Remove the bomb from the game field
         gameField[xPos][yPos] = new Cell(xPos, yPos);
 
@@ -116,19 +99,10 @@ public class Bomb extends Cell {
             throw new RuntimeException(e);
         }
     }
-    public Cell[][] getGameField() {
-        return gameField;
-    }
 
-    public void setGameField(Cell[][] gameField) {
-        this.gameField = gameField;
-    }
 
     public Player getPlayer() {
         return player;
     }
 
-    public void setPlayer(Player player) {
-        this.player = player;
-    }
 }

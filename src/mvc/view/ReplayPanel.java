@@ -1,9 +1,12 @@
 package mvc.view;
 
+import mvc.controller.GameController;
 import mvc.model.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class ReplayPanel extends JPanel {
 
@@ -12,13 +15,32 @@ public class ReplayPanel extends JPanel {
     private int mapWidth;
     private Cell[][] replayField;
 
-    public ReplayPanel(int mapWidth, int mapHeight, int cellSize) {
+    public ReplayPanel(int mapWidth, int mapHeight, int cellSize, GameController gameController) {
         super();
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
         this.cellSize = cellSize;
 
         this.setLayout(null);
+        this.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int keyCode = e.getKeyCode();
+                if (keyCode == KeyEvent.VK_ESCAPE) {
+                    gameController.pauseGame();
+                }
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
     }
 
     public void setGameField(Cell[][] replayField) {
@@ -29,7 +51,7 @@ public class ReplayPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         System.out.println("painting");
-        if (replayField != null) {
+        if (replayField != null && replayField[0][0] != null) {
             for (int i = 0; i < mapHeight; i++) {
                 for (int j = 0; j < mapWidth; j++) {
                     Cell cell = replayField[i][j];
@@ -38,14 +60,8 @@ public class ReplayPanel extends JPanel {
                     } else if (cell instanceof BreakableCell) {
                         g.drawImage(cell.img, j * cellSize, i * cellSize, cellSize, cellSize, null);
                     } else if (cell instanceof Bomb) {
-                        Bomb bomb = (Bomb) cell;
-                        if (bomb.isTicking()) {
                             g.drawImage(cell.bomb1, j * cellSize, i * cellSize, cellSize, cellSize, null);
 
-                        } else {
-                            g.drawImage(cell.bomb2, j * cellSize, i * cellSize, cellSize, cellSize, null);
-
-                        }
                     } else if (cell instanceof Player) {
                         Player player = (Player) cell;
                                 g.drawImage(player.player_downImg, j * cellSize, i * cellSize, cellSize, cellSize, null);

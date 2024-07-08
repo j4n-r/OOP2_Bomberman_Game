@@ -18,63 +18,43 @@ public class GameController implements Runnable {
     private final GameLogDaoImpl gameLogDaoImpl;
     private final GameController gameController;
     private GamePanel gamePanel;
-    private GameFrame gameFrame;
+    private final GameFrame gameFrame;
     private final int mapHeight = 15;
     private final int mapWidth = 15;
     private final int cellSize = 48;
     private Cell[][] gameField;
     private Thread gameThread;
-    private int FPS = 60; // Assuming a default FPS value
-    private PlayerController playerController;
+    private final int FPS = 60; // Assuming a default FPS value
     private Player player1;
     private Player player2;
     public String gameStatus;
-    private MenuPanel menuPanel;
-    private VictoryPanel victoryPanel;
-    private int playerNumber;
-    private DBConnectionController DBConnectionController;
     private ReplayPanel replayPanel;
     private Cell[][] replayField;
     GameLog replayGameLog;
     GameLog gameLog;
     private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
-    private int charIndex;
 
     public GameController() {
+        // need because inner classes cannot access this
         gameController = this;
         gameStatus = "STOPPED";
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
-        menuPanel = new MenuPanel(this);
+
+        MenuPanel menuPanel = new MenuPanel(this);
         gameFrame.addPanel(menuPanel, "Menu");
-        replayPanel = new ReplayPanel(mapWidth, mapHeight, cellSize);
+
+        replayPanel = new ReplayPanel(mapWidth, mapHeight, cellSize, this);
         replayField = new Cell[mapHeight][mapWidth];
-        replayPanel.addKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(KeyEvent e) {
 
-            }
-
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-                if (keyCode == KeyEvent.VK_ESCAPE) {
-                    gameController.pauseGame();
-                }
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-
-            }
-        });
         gameFrame.addPanel(replayPanel, "Replay");
-        DBConnectionController = new DBConnectionController();
         gameLogDaoImpl = new GameLogDaoImpl();
-        startGameThread();
+
         gameFrame.showPanel("Menu");
         gameFrame.setVisible(true);
         replayGameLog = new GameLog();
         gameLog = new GameLog();
+        startGameThread();
+
 
     }
 
@@ -109,15 +89,9 @@ public class GameController implements Runnable {
         gamePanel = new GamePanel(mapWidth, mapHeight, cellSize);
         gameField = new Cell[mapHeight][mapWidth];
         // menuPanel = new MenuPanel(this);
-        // // Clear the game field completely
-        // for (int i = 0; i < mapHeight; i++) {
-        // for (int j = 0; j < mapWidth; j++) {
-        // gameField[i][j] = null;
-        // }
-        // } // Reset players to null
-        player1 = null;
-        player2 = null;
-        printGameField();
+
+//        printGameField();
+        // generates the  gameField based on the layout
         initializeGameField();
 
         gamePanel.setGameField(gameField);
@@ -125,7 +99,8 @@ public class GameController implements Runnable {
         // gameFrame.addPanel(menuPanel, "Menu");
         gamePanel.setFocusable(true);
         gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
-        //
+
+        //debugging for focus
         gamePanel.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -137,7 +112,7 @@ public class GameController implements Runnable {
                 System.out.println("GamePanel lost focus");
             }
         });
-        // Reinitialize the game field
+
 
         gameFrame.showPanel("Game");
         gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
@@ -154,32 +129,21 @@ public class GameController implements Runnable {
         gameFrame.showPanel("Menu");
         gameStatus = "PAUSED";
         System.out.println(gameLog.toString());
-
-        replayGameLog = gameLogDaoImpl.getGameLog();
-        System.out.println(replayGameLog.toString());
-
-        //testing
-        System.out.println(replayGameLog);
-        replayField = new Cell[mapHeight][mapWidth];
-        System.out.println(replayField);
-        replayFieldCounter = 0;
-
     }
 
     public void replayGame() {
+        replayFieldCounter = 0;
         gameFrame.showPanel("Replay");
         replayPanel.requestFocusInWindow();
         replayGameLog = gameLogDaoImpl.getGameLog();
         replayField = new Cell[mapHeight][mapWidth];
         replayPanel.setGameField(replayField);
-
+        // sleep so the gameField can load
         gameStatus = "REPLAY";
-
-
     }
 
     public void endGame(String winner) {
-        victoryPanel = new VictoryPanel(this, winner);
+        VictoryPanel victoryPanel = new VictoryPanel(this, winner);
         gameFrame.addPanel(victoryPanel, "Victory");
         gameFrame.showPanel("Victory");
         gameLogDaoImpl.saveGameLog(gameLog);
@@ -212,7 +176,7 @@ public class GameController implements Runnable {
                 {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'},
         };
 
-        playerNumber = 1;
+        int playerNumber = 1;
         for (int i = 0; i < mapWidth; i++) {
             for (int j = 0; j < mapHeight; j++) {
                 switch (layout[i][j]) {
@@ -247,7 +211,7 @@ public class GameController implements Runnable {
                 }
             }
         }
-        playerController = new PlayerController(player1, player2, this);
+        PlayerController playerController = new PlayerController(player1, player2, this);
         gamePanel.addKeyListener(playerController);
         playerNumber = 1;
 
@@ -266,8 +230,11 @@ public class GameController implements Runnable {
             double logDelta = (now - lastLogTime) / nsPerLog;
 
             if (gameStatus.equals("REPLAY")) {
+                // generates replayField based on the replayGameLog
                 generateReplayFieldBasedOnLog();
+                // repaints the replayPanel based on the replayField
                 replayPanel.repaint();
+                // sleep so the replay is not approximately as fast as the game was
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
@@ -296,7 +263,7 @@ public class GameController implements Runnable {
 
                 // Add current gameField to gameLog every 0.5 seconds
                 if (logDelta >= 1) {
-                    addCurrentGameFieldToLog();
+                    gameLog.add(currentGameFieldString());
                     lastLogTime = now;
                 }
 
@@ -305,10 +272,8 @@ public class GameController implements Runnable {
 
             }
 
-            if (gameStatus.equals("STOPPED")) {
-
-            }
             if (gameStatus.equals("PAUSED")) {
+
             }
             long startTime = System.nanoTime();
 
@@ -330,12 +295,13 @@ public class GameController implements Runnable {
     private void generateReplayFieldBasedOnLog() {
         System.out.println(replayGameLog);
         String oneGameFieldString = replayGameLog.get(replayFieldCounter);
-        System.out.println("oldGameLogList:" + replayGameLog);
-        System.out.println("oneGameFieldString:" + oneGameFieldString);
+//        System.out.println("oldGameLogList:" + replayGameLog);
+//        System.out.println("oneGameFieldString:" + oneGameFieldString);
         int charIndex = 0;
         char cellType;
         if (replayFieldCounter == replayGameLog.size() -1 ) {
             gameStatus = "STOPPED";
+            // waits a bit  to maybe see who won
             try {
                 gameThread.sleep(2000);
             } catch (InterruptedException e) {
@@ -346,14 +312,17 @@ public class GameController implements Runnable {
         }
         for (int i = 0; i < mapHeight; i++) {
             for (int j = 0; j < mapWidth; j++) {
-                try {
-                    cellType = oneGameFieldString.charAt(charIndex);
-                } catch (StringIndexOutOfBoundsException e) {
-                    System.out.println("StringIndexOutOfBoundsException");
-                    break;
-                }
+                // get the character at the current position of the current array of the replayGameLog
+                cellType = oneGameFieldString.charAt(charIndex);
+//                try {
+//
+//                } catch (StringIndexOutOfBoundsException e) {
+//                    System.out.println("StringIndexOutOfBoundsException");
+//                    break;
+//                }
+                // update the position of the character that will be parsed out of the current gameFieldString
                 charIndex++;
-                System.out.println(cellType);
+//                System.out.println(cellType);
                 switch (cellType) {
                     case '#': // unbreakableCell
                         replayField[i][j] = new UnbreakableCell(i, j);
@@ -363,16 +332,22 @@ public class GameController implements Runnable {
                         break;
                     case 'F': // Bomb
                         // Assuming default values for Bomb parameters
-                        replayField[i][j] = new Bomb(i, j, 3, replayField, player1);
+                        replayField[i][j] = new Bomb(i, j);
                     case 'O': // Bomb
                         // Assuming default values for Bomb parameters
-                        replayField[i][j] = new Bomb(i, j, 3, replayField, player2);
+                        replayField[i][j] = new Bomb(i, j);
                         break;
                     case '1': // Player 1
-                        replayField[i][j] = new Player(i, j, 1);
+                        if (player1 == null ){
+                            player1 =new Player(i, j, 1);
+                        }
+                        replayField[i][j] = player1;
                         break;
-                    case '2': // Player 2
-                        replayField[i][j] = new Player(i, j, 2);
+                    case '2': // Player 2\
+                        if (player2 == null ){
+                           player2 = new Player(i, j, 2);
+                        }
+                        replayField[i][j] = player2;
                         break;
                     default: // normal Cell
                         replayField[i][j] = new Cell(i, j);
@@ -380,38 +355,37 @@ public class GameController implements Runnable {
                         break;
                 }
 
-                System.out.println(charIndex);
-                System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
-                System.out.println("iteration " + "i: " + i + "j: " + j);
-                System.out.println("Char at j: " + oneGameFieldString.charAt(j));
+//                System.out.println(charIndex);
+//                System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
+//                System.out.println("iteration " + "i: " + i + "j: " + j);
+//                System.out.println("Char at j: " + oneGameFieldString.charAt(j));
             }
 
         }
-        for (int i = 0; i < replayField.length; i++) {
-            for (int j = 0; j < replayField[0].length; j++) {
-                if (replayField[i][j] instanceof UnbreakableCell) {
-                    System.out.print("# ");
-                } else if (replayField[i][j] instanceof BreakableCell) {
-                    System.out.print("B ");
-                } else if (replayField[i][j] instanceof Bomb) {
-                    System.out.print("O ");
-                } else if (replayField[i][j] instanceof Player) {
-                    Player player = (Player) replayField[i][j];
-                    if (player == player1) {
-                        System.out.print("1 ");
-                    } else {
-                        System.out.print("2 ");
-                    }
-                } else {
-                    System.out.print("_ ");
-                }
-            }
-            System.out.println();
-        }
+//        for (int i = 0; i < replayField.length; i++) {
+//            for (int j = 0; j < replayField[0].length; j++) {
+//                if (replayField[i][j] instanceof UnbreakableCell) {
+//                    System.out.print("# ");
+//                } else if (replayField[i][j] instanceof BreakableCell) {
+//                    System.out.print("B ");
+//                } else if (replayField[i][j] instanceof Bomb) {
+//                    System.out.print("O ");
+//                } else if (replayField[i][j] instanceof Player) {
+//                    Player player = (Player) replayField[i][j];
+//                    if (player == player1) {
+//                        System.out.print("1 ");
+//                    } else {
+//                        System.out.print("2 ");
+//                    }
+//                } else {
+//                    System.out.print("_ ");
+//                }
+//            }
+//            System.out.println();
+//        }
         System.out.println();
         replayFieldCounter++;
         System.out.println(replayFieldCounter);
-        System.out.println(Arrays.toString(replayField));
     }
 
     private void update() {
@@ -421,7 +395,7 @@ public class GameController implements Runnable {
     private void render() {
     }
 
-    private void addCurrentGameFieldToLog() {
+    private String currentGameFieldString() {
         // using stringbuilder becaus
         // e += creates new string objects everytime
         StringBuilder log = new StringBuilder();
@@ -450,8 +424,9 @@ public class GameController implements Runnable {
             }
 
         }
-        gameLog.add(log.toString());
-        System.out.println("added to replaygamelog " + replayGameLog);
+        System.out.println("added to gameLog " + log);
+        return log.toString();
+
     }
 
     public static void main(String[] args) {
@@ -467,83 +442,18 @@ public class GameController implements Runnable {
         return gamePanel;
     }
 
-    public void setGamePanel(GamePanel gamePanel) {
-        this.gamePanel = gamePanel;
-    }
 
-    public GameFrame getGameFrame() {
-        return gameFrame;
-    }
-
-    public void setGameFrame(GameFrame gameFrame) {
-        this.gameFrame = gameFrame;
-    }
-
-    public int getMapHeight() {
-        return mapHeight;
-    }
-
-    public int getMapWidth() {
-        return mapWidth;
-    }
-
-    public int getCellSize() {
-        return cellSize;
-    }
 
     public Cell[][] getGameField() {
         return gameField;
     }
 
-    public void setGameField(Cell[][] gameField) {
-        this.gameField = gameField;
-    }
 
-    public Thread getGameThread() {
-        return gameThread;
-    }
 
-    public void setGameThread(Thread gameThread) {
-        this.gameThread = gameThread;
-    }
 
-    public int getFPS() {
-        return FPS;
-    }
-
-    public void setFPS(int fPS) {
-        FPS = fPS;
-    }
-
-    public PlayerController getPlayerController() {
-        return playerController;
-    }
-
-    public void setPlayerController(PlayerController playerController) {
-        this.playerController = playerController;
-    }
-
-    public Player getPlayer1() {
-        return player1;
-    }
-
-    public void setPlayer1(Player player1) {
-        this.player1 = player1;
-    }
-
-    public Player getPlayer2() {
-        return player2;
-    }
-
-    public void setPlayer2(Player player2) {
-        this.player2 = player2;
-    }
 
     public String getGameStatus() {
         return gameStatus;
     }
 
-    public void setGameStatus(String gameStatus) {
-        this.gameStatus = gameStatus;
-    }
 }

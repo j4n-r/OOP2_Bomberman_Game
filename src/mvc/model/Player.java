@@ -57,9 +57,7 @@ public class Player extends Cell {
     }
 
 
-    public void setPlayerNumber(int playerNumber) {
-        this.playerNumber = playerNumber;
-    }
+
 
     public String getDirection() {
         return direction;
@@ -69,9 +67,6 @@ public class Player extends Cell {
         this.direction = direction;
     }
 
-    public int getPlayerNumber() {
-        return playerNumber;
-    }
 
     public int getxPos() {
         return xPos;
