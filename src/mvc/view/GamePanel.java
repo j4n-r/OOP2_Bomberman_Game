@@ -70,9 +70,6 @@ public class GamePanel extends JPanel {
                     } else {
                         g.drawImage(cell.img, j * cellSize, i * cellSize, cellSize, cellSize, null);
                     }
-//                    g.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
-//                    g.setColor(Color.BLACK);
-//                    g.drawRect(j * cellSize, i * cellSize, cellSize, cellSize);
                 }
             }
         }

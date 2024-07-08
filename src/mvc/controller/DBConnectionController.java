@@ -24,15 +24,11 @@ public class DBConnectionController {
         return statement;
     }
 
-    public void setStatement(Statement statement) {
-        this.statement = statement;
-    }
+
 
     public Connection getDbConnection() {
         return dbConnection;
     }
 
-    public void setDbConnection(Connection dbConnection) {
-        this.dbConnection = dbConnection;
-    }
+
 }

@@ -35,7 +35,7 @@ public class GameController implements Runnable {
     private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
 
     public GameController() {
-        // need because inner classes cannot access this
+        // need to assign this to gamecontroller  because inner classes cannot access this
         gameController = this;
         gameStatus = "STOPPED";
         gameFrame = new GameFrame(mapWidth, mapHeight, cellSize);
@@ -362,35 +362,10 @@ public class GameController implements Runnable {
 
                         break;
                 }
-
-//                System.out.println(charIndex);
-//                System.out.println(oneGameFieldString + " gamefieldlenght:  " + oneGameFieldString.length());
-//                System.out.println("iteration " + "i: " + i + "j: " + j);
-//                System.out.println("Char at j: " + oneGameFieldString.charAt(j));
             }
 
         }
-//        for (int i = 0; i < replayField.length; i++) {
-//            for (int j = 0; j < replayField[0].length; j++) {
-//                if (replayField[i][j] instanceof UnbreakableCell) {
-//                    System.out.print("# ");
-//                } else if (replayField[i][j] instanceof BreakableCell) {
-//                    System.out.print("B ");
-//                } else if (replayField[i][j] instanceof Bomb) {
-//                    System.out.print("O ");
-//                } else if (replayField[i][j] instanceof Player) {
-//                    Player player = (Player) replayField[i][j];
-//                    if (player == player1) {
-//                        System.out.print("1 ");
-//                    } else {
-//                        System.out.print("2 ");
-//                    }
-//                } else {
-//                    System.out.print("_ ");
-//                }
-//            }
-//            System.out.println();
-//        }
+
         System.out.println();
         replayFieldCounter++;
         System.out.println(replayFieldCounter);
