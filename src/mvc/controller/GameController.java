@@ -84,6 +84,7 @@ public class GameController implements Runnable {
     }
 
     public void startNewGame() {
+        gameLog.clear();
         // create new instance of the gamePanel, clearing the panel did not work could
         // be because it get referenced somewhere later
         gamePanel = new GamePanel(mapWidth, mapHeight, cellSize);
@@ -132,6 +133,8 @@ public class GameController implements Runnable {
     }
 
     public void replayGame() {
+        // clear gameLog so it doesn't get appended to
+        replayGameLog.clear();
         replayFieldCounter = 0;
         gameFrame.showPanel("Replay");
         replayPanel.requestFocusInWindow();
@@ -149,7 +152,15 @@ public class GameController implements Runnable {
 
         // flag to use the same method in a replay
         if (!replay) {
+            // in the last gameLong entry replace the looser with the winner so the replay can search for the looser  (and don't find it)
+            int lastIndex = gameLog.size() - 1;
+            if (winner.equals("Red")) {
+                gameLog.set(lastIndex, gameLog.get(lastIndex).replace("1","2"));
+            } else {
+                gameLog.set(lastIndex, gameLog.get(lastIndex).replace("2","1"));
+            }
             gameLogDaoImpl.saveGameLog(gameLog);
+            System.out.println("GameLog saved to DB");
         }
     }
 
@@ -223,11 +234,15 @@ public class GameController implements Runnable {
 
     @Override
     public void run() {
-        // Main game loop
+        // last time the game was updated
         long lastTime = System.nanoTime();
+        // time between updates based on fps
         double nsPerUpdate = 1000000000.0 / FPS;
+        // last time the gameLog was updated
         long lastLogTime = System.nanoTime();
-        double nsPerLog = 1000000000.0 * 0.5; // 0.5 seconds
+        // ns between gameLogs for the replay
+        double logsPerSecond = 0.5;
+        double nsPerLog = 1000000000.0 * logsPerSecond;
         while (gameThread != null) {
             long now = System.nanoTime();
             double delta = (now - lastTime) / nsPerUpdate;
@@ -249,6 +264,7 @@ public class GameController implements Runnable {
 
                 if (player1.getHealth() == 0) {
                     gameStatus = "STOPPED";
+
                     System.out.println("Player 2 Won the game");
                     endGame("Red", false);
 
@@ -299,22 +315,15 @@ public class GameController implements Runnable {
     private void generateReplayFieldBasedOnLog() {
         System.out.println(replayGameLog);
         String oneGameFieldString = replayGameLog.get(replayFieldCounter);
-//        System.out.println("oldGameLogList:" + replayGameLog);
-//        System.out.println("oneGameFieldString:" + oneGameFieldString);
+
         int charIndex = 0;
         char cellType;
-        if (replayFieldCounter == replayGameLog.size() -1 ) {
+        if (replayFieldCounter == replayGameLog.size() - 1 ) {
             gameStatus = "STOPPED";
-            // waits a bit  to maybe see who won
-            try {
-                gameThread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            if (oneGameFieldString.indexOf("1") != -1) {
-                endGame("Red", true);
-            } else {
+            if (oneGameFieldString.contains("1")) {
                 endGame("Blue", true);
+            } else {
+                endGame("Red", true);
             }
             return;
         }
@@ -322,15 +331,9 @@ public class GameController implements Runnable {
             for (int j = 0; j < mapWidth; j++) {
                 // get the character at the current position of the current array of the replayGameLog
                 cellType = oneGameFieldString.charAt(charIndex);
-//                try {
-//
-//                } catch (StringIndexOutOfBoundsException e) {
-//                    System.out.println("StringIndexOutOfBoundsException");
-//                    break;
-//                }
+
                 // update the position of the character that will be parsed out of the current gameFieldString
                 charIndex++;
-//                System.out.println(cellType);
                 switch (cellType) {
                     case '#': // unbreakableCell
                         replayField[i][j] = new UnbreakableCell(i, j);
