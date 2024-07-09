@@ -27,7 +27,7 @@ public class GameController implements Runnable {
     private ReplayPanel replayPanel;
     private Cell[][] replayField;
     GameLog replayGameLog;
-    GameLog gameLog;
+    GameLog gameLog; //ArrayList<String> gameLog;
     private int replayFieldCounter = 0; // Counter to iterate through the oldGameLog
 
     public GameController() {
@@ -54,31 +54,6 @@ public class GameController implements Runnable {
 
     }
 
-    // debugging only
-    public void printGameField() {
-        for (int i = 0; i < gameField.length; i++) {
-            for (int j = 0; j < gameField[0].length; j++) {
-                if (gameField[i][j] instanceof UnbreakableCell) {
-                    System.out.print("# ");
-                } else if (gameField[i][j] instanceof BreakableCell) {
-                    System.out.print("B ");
-                } else if (gameField[i][j] instanceof Bomb) {
-                    System.out.print("O ");
-                } else if (gameField[i][j] instanceof Player) {
-                    Player player = (Player) gameField[i][j];
-                    if (player == player1) {
-                        System.out.print("1 ");
-                    } else {
-                        System.out.print("2 ");
-                    }
-                } else {
-                    System.out.print("_ ");
-                }
-            }
-            System.out.println();
-        }
-        System.out.println();
-    }
 
     public void startNewGame() {
         gameLog.clear();
@@ -144,6 +119,8 @@ public class GameController implements Runnable {
                 gameLog.set(lastIndex, gameLog.get(lastIndex).replace("2","1"));
             }
             gameLogDaoImpl.saveGameLog(gameLog);
+            // clears the gamelog after saving
+            gameLog.clear();
             System.out.println("GameLog saved to DB");
         }
     }
@@ -259,7 +236,7 @@ public class GameController implements Runnable {
 
                 // Update game state
                 if (delta >= 1) {
-                    update();
+                    gamePanel.repaint();
                     lastTime = now;
                 }
 
@@ -355,9 +332,6 @@ public class GameController implements Runnable {
         System.out.println(replayFieldCounter);
     }
 
-    private void update() {
-        gamePanel.repaint();
-    }
 
 
     private String currentGameFieldString() {

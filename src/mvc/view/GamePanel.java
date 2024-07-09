@@ -1,10 +1,8 @@
 
 package mvc.view;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import javax.swing.JPanel;
-import mvc.controller.GameController;
 import mvc.model.Bomb;
 import mvc.model.BreakableCell;
 import mvc.model.Cell;

@@ -35,7 +35,7 @@ public class PlayerController implements KeyListener {
         // Handle key pressed event
         switch (keyCode) {
             case KeyEvent.VK_A:
-                System.out.println("Player 1: Move left");
+                // Move player1 left
                 if (player1.getDirection().equals("LEFT")) {
                     movePlayer(player1, 0, -1);
                 } else {
@@ -43,7 +43,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_D:
-                System.out.println("Player 1: Move right");
+                // Move player1 right
                 if (player1.getDirection().equals("RIGHT")) {
                     movePlayer(player1, 0, 1);
                 } else {
@@ -51,7 +51,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_W:
-                System.out.println("Player 1: Move up");
+                // Move player1 up
                 if (player1.getDirection().equals("UP")) {
                     movePlayer(player1, -1, 0);
                 } else {
@@ -59,7 +59,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_S:
-                System.out.println("Player 1: Move down");
+                // Move player1 down
                 if (player1.getDirection().equals("DOWN")) {
                     movePlayer(player1, 1, 0);
                 } else {
@@ -67,7 +67,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_LEFT:
-                System.out.println("Player 2: Move left");
+                // Move player2 left
                 if (player2.getDirection().equals("LEFT")) {
                     movePlayer(player2, 0, -1);
                 } else {
@@ -75,7 +75,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_RIGHT:
-                System.out.println("Player 2: Move right");
+                // Move player2 right
                 if (player2.getDirection().equals("RIGHT")) {
                     movePlayer(player2, 0, 1);
                 } else {
@@ -83,7 +83,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_UP:
-                System.out.println("Player 2: Move up");
+                // Move player2 up
                 if (player2.getDirection().equals("UP")) {
                     movePlayer(player2, -1, 0);
                 } else {
@@ -91,7 +91,7 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_DOWN:
-                System.out.println("Player 2: Move down");
+                // Move player2 down
                 if (player2.getDirection().equals("DOWN")) {
                     movePlayer(player2, 1, 0);
                 } else {
@@ -99,22 +99,23 @@ public class PlayerController implements KeyListener {
                 }
                 break;
             case KeyEvent.VK_SPACE:
-                System.out.println("Player 2: Drop bomb");
+               // Player 2: Drop bomb
                 setBomb(player2, player2.getxPos(), player2.getyPos());
                 break;
             case KeyEvent.VK_Q:
-                System.out.println("Player 1: Drop bomb");
+                // Player 1: Drop bomb
                 setBomb(player1, player1.getxPos(), player1.getyPos());
                 break;
             case KeyEvent.VK_ESCAPE:
+                // Pause the game
                 gameController.pauseGame();
                 break;
         }
-        gameController.printGameField();
+
     }
 
     private void setBomb(Player player, int xPos, int yPos) {
-        if (!player.isHasAmmo()) {
+        if (!player.hasAmmo()) {
             return;
         }
         String playerDirection = player.getDirection();
@@ -175,6 +176,7 @@ public class PlayerController implements KeyListener {
             return;
         } else {
             // Update player's position on the game field
+            // set old position to a new cell (grass)
             gameField[player.getxPos()][player.getyPos()] = new Cell(player.getxPos(), player.getyPos());
             player.setxPos(newXPos);
             player.setyPos(newYPos);

@@ -23,16 +23,20 @@ public class GameLogDaoImpl implements GameLogDao {
         dbConnection = dbConnectionController.getDbConnection();
 
     }
+
     @Override
     public void saveGameLog(GameLog gameLog) {
         try {
+            // create table game_log
             String dropQuery = "DROP TABLE game_log";
             statement.executeUpdate(dropQuery);
 
+            // create table game_log
             String createQuery = "CREATE TABLE game_log (log VARCHAR2(255))";
             System.out.println("Creating table game_log");
             statement.executeUpdate(createQuery);
 
+            // insert game log into table
             for (String log : gameLog) {
                 String stringQuery = "INSERT INTO game_log (log) VALUES ('" + log + "')";
                 statement.executeUpdate(stringQuery);
@@ -46,8 +50,10 @@ public class GameLogDaoImpl implements GameLogDao {
     @Override
     public GameLog getGameLog() {
         try {
+            // get game log from table
             String selectQuery = "SELECT * FROM game_log";
             ResultSet resultSet = statement.executeQuery(selectQuery);
+            // add game log "rows" to replayGameLog
             while (resultSet.next()) {
                 replayGameLog.add(resultSet.getString("log"));
             }

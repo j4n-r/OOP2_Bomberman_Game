@@ -1,10 +1,7 @@
 package mvc.model;
 
-import mvc.controller.GameController;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Graphics;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -72,6 +69,7 @@ public class Bomb extends Cell {
             int newX = xPos + direction[0];
             int newY = yPos + direction[1];
 
+            // check if cell is in the game field bounds
             if (newX >= 0 && newX < gameField.length && newY >= 0 && newY < gameField[0].length) {
                 Cell cell = gameField[newX][newY];
 
