@@ -69,6 +69,7 @@ public class GameController implements Runnable {
         PlayerController playerController = new PlayerController(player1, player2, this);
         gamePanel.addKeyListener(playerController);
 
+
         gamePanel.setGameField(gameField);
         gameFrame.addPanel(gamePanel, "Game");
         // gameFrame.addPanel(menuPanel, "Menu");
@@ -209,7 +210,7 @@ public class GameController implements Runnable {
 
             if (gameStatus.equals("REPLAY")) {
                 // generates replayField based on the replayGameLog
-                generateReplayFieldBasedOnLog();
+                generateReplayFieldBasedOnReplayLog();
                 // repaints the replayPanel based on the replayField
                 replayPanel.repaint();
                 // sleep so the replay is not approximately as fast as the game was
@@ -242,7 +243,7 @@ public class GameController implements Runnable {
 
                 // Add current gameField to gameLog every 0.5 seconds
                 if (logDelta >= 1) {
-                    gameLog.add(currentGameFieldString());
+                    gameLog.add(getCurrentGameFieldAsString());
                     lastLogTime = now;
                 }
 
@@ -267,8 +268,41 @@ public class GameController implements Runnable {
             }
         }
     }
+    private String getCurrentGameFieldAsString() {
+        // using stringbuilder becaus
+        // e += creates new string objects everytime
+        StringBuilder log = new StringBuilder();
+        for (int i = 0; i < gameField.length; i++) {
+            for (int j = 0; j < gameField[0].length; j++) {
+                if (gameField[i][j] instanceof UnbreakableCell) {
+                    log.append('#');
+                } else if (gameField[i][j] instanceof BreakableCell) {
+                    log.append('B');
+                } else if (gameField[i][j] instanceof Bomb ) {
+                    if (((Bomb) gameField[i][j]).getPlayer() == player1) {
+                        log.append('F');
+                    }
+                    if (((Bomb) gameField[i][j]).getPlayer() == player2) {
+                        log.append('O');
+                    }
+                } else if (gameField[i][j] instanceof Player player) {
+                    if (player == player1) {
+                        log.append('1');
+                    } else {
+                        log.append('2');
+                    }
+                } else {
+                    log.append('_');
+                }
+            }
 
-    private void generateReplayFieldBasedOnLog() {
+        }
+        System.out.println("added to gameLog " + log);
+        return log.toString();
+
+    }
+
+    private void generateReplayFieldBasedOnReplayLog() {
         System.out.println(replayGameLog);
         String oneGameFieldString = replayGameLog.get(replayFieldCounter);
 
@@ -314,7 +348,7 @@ public class GameController implements Runnable {
                         break;
                     case '2': // Player 2\
                         if (player2 == null ){
-                           player2 = new Player(i, j, 2);
+                            player2 = new Player(i, j, 2);
                         }
                         replayField[i][j] = player2;
                         break;
@@ -330,42 +364,6 @@ public class GameController implements Runnable {
         System.out.println();
         replayFieldCounter++;
         System.out.println(replayFieldCounter);
-    }
-
-
-
-    private String currentGameFieldString() {
-        // using stringbuilder becaus
-        // e += creates new string objects everytime
-        StringBuilder log = new StringBuilder();
-        for (int i = 0; i < gameField.length; i++) {
-            for (int j = 0; j < gameField[0].length; j++) {
-                if (gameField[i][j] instanceof UnbreakableCell) {
-                    log.append('#');
-                } else if (gameField[i][j] instanceof BreakableCell) {
-                    log.append('B');
-                } else if (gameField[i][j] instanceof Bomb ) {
-                    if (((Bomb) gameField[i][j]).getPlayer() == player1) {
-                        log.append('F');
-                    }
-                    if (((Bomb) gameField[i][j]).getPlayer() == player2) {
-                        log.append('O');
-                    }
-                } else if (gameField[i][j] instanceof Player player) {
-                    if (player == player1) {
-                        log.append('1');
-                    } else {
-                        log.append('2');
-                    }
-                } else {
-                    log.append('_');
-                }
-            }
-
-        }
-        System.out.println("added to gameLog " + log);
-        return log.toString();
-
     }
 
     public static void main(String[] args) {

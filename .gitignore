@@ -2,3 +2,4 @@ config.txt
 .idea
 build
 /out/
+.gitignore

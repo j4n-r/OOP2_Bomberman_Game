@@ -1,6 +1,7 @@
 package mvc.dao;
 
 import mvc.controller.DBConnectionController;
+import mvc.controller.GameController;
 import mvc.model.GameLog;
 
 import java.sql.Connection;

@@ -6,34 +6,33 @@ import java.io.IOException;
 import java.sql.*;
 import oracle.jdbc.pool.OracleDataSource;
 public class Database {
-    private static Database dss = null;
-    private static OracleDataSource ds = null;
+    private static Database dbInstance = null;
+    private static OracleDataSource oracleDataSource = null;
     private Database(){
         try {
-            ds = new OracleDataSource();
-            ds.setDataSourceName("HWROracleDataSource");
-            ds.setURL("jdbc:oracle:thin:@//wi-dbora.hwr-berlin.de:1521/dbk.hwr-berlin.de");
-            ds.setUser("oop2_ss24_g2_p1");
+            oracleDataSource = new OracleDataSource();
+            oracleDataSource.setDataSourceName("HWROracleDataSource");
+            oracleDataSource.setURL("jdbc:oracle:thin:@//wi-dbora.hwr-berlin.de:1521/dbk.hwr-berlin.de");
+            oracleDataSource.setUser("oop2_ss24_g2_p1");
             // Read password from config.txt
             try (BufferedReader reader = new BufferedReader(new FileReader("config.txt"))) {
                 String password = reader.readLine();
-                ds.setPassword(password);
+                oracleDataSource.setPassword(password);
             } catch (IOException e) {
                 System.out.println("Failed to read password from config.txt; " + e.getMessage());
             }
         } catch (SQLException e) {
             System.out.println("connection failed; " + e.getMessage());
         }
-
     }
 
 public static Database getInstance() {
-    if (dss == null) dss = new Database();
-    return dss;
+    if (dbInstance == null) dbInstance = new Database();
+    return dbInstance;
 }
 public Connection getConnection() throws SQLException{
-    Connection con = null;
-    con = ds.getConnection();
-    return con;
+    Connection dbConnection = null;
+    dbConnection = oracleDataSource.getConnection();
+    return dbConnection;
 }
 }
