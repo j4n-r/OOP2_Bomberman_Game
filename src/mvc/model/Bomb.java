@@ -11,7 +11,6 @@ import java.util.TimerTask;
 
 public class Bomb extends Cell {
 
-    private  GameController gameController;
     private boolean ticking;
     private int yCoordinate;
     private int timer;
@@ -19,7 +18,7 @@ public class Bomb extends Cell {
     private Cell[][] gameField;
     private Player player;
 
-    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField, Player player, GameController gameController) {
+    public Bomb(final int xCoordinate, int yCoordinate, int timer, Cell[][] gameField, Player player) {
         super(xCoordinate, yCoordinate);
         this.xCoordinate = xCoordinate;
         this.yCoordinate = yCoordinate;
@@ -27,7 +26,6 @@ public class Bomb extends Cell {
         this.gameField = gameField;
         this.player = player;
         this.startTimer();
-        this.gameController = gameController;
         this.setImage();
     }
     public Bomb(int xCoordinate, int yCoordinate){

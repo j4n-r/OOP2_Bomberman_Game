@@ -1,10 +1,8 @@
 package mvc.controller;
 
-import mvc.model.GameLog;
-import mvc.model.Database;
+import mvc.util.Database;
 
 import java.sql.*;
-import java.util.List;
 
 public class DBConnectionController {
     private Statement statement;

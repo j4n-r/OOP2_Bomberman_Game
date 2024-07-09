@@ -102,7 +102,7 @@ public class PlayerController implements KeyListener {
                 System.out.println("Player 2: Drop bomb");
                 setBomb(player2, player2.getxPos(), player2.getyPos());
                 break;
-            case KeyEvent.VK_F:
+            case KeyEvent.VK_Q:
                 System.out.println("Player 1: Drop bomb");
                 setBomb(player1, player1.getxPos(), player1.getyPos());
                 break;
@@ -137,6 +137,8 @@ public class PlayerController implements KeyListener {
                 bombXPos += 1;
                 break;
         }
+        // Bombs can only be placed on normal Cells
+        // this structure is needed because everything is instantiated as a cell so we can"t check for it
         if (gameField[bombXPos][bombYPos] instanceof UnbreakableCell) {
             return;
         }
@@ -148,7 +150,7 @@ public class PlayerController implements KeyListener {
         } else {
             player.setHasAmmo(false);
             // Place the bomb at the calculated position
-            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField, player, gameController);
+            gameField[bombXPos][bombYPos] = new Bomb(bombXPos, bombYPos, 3000, this.gameField, player);
 
         }
 

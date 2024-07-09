@@ -1,11 +1,7 @@
 package mvc.controller;
 
 import java.awt.Dimension;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Arrays;
+
 
 import javax.swing.SwingUtilities;
 
@@ -58,6 +54,7 @@ public class GameController implements Runnable {
 
     }
 
+    // debugging only
     public void printGameField() {
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[0].length; j++) {
@@ -94,26 +91,13 @@ public class GameController implements Runnable {
 //        printGameField();
         // generates the  gameField based on the layout
         initializeGameField();
+        PlayerController playerController = new PlayerController(player1, player2, this);
+        gamePanel.addKeyListener(playerController);
 
         gamePanel.setGameField(gameField);
         gameFrame.addPanel(gamePanel, "Game");
         // gameFrame.addPanel(menuPanel, "Menu");
         gamePanel.setFocusable(true);
-        gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
-
-        //debugging for focus
-        gamePanel.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(FocusEvent e) {
-                System.out.println("GamePanel gained focus");
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-                System.out.println("GamePanel lost focus");
-            }
-        });
-
 
         gameFrame.showPanel("Game");
         gamePanel.requestFocusInWindow(); // Ensure the game panel has focus to receive key events
@@ -226,9 +210,7 @@ public class GameController implements Runnable {
                 }
             }
         }
-        PlayerController playerController = new PlayerController(player1, player2, this);
-        gamePanel.addKeyListener(playerController);
-        playerNumber = 1;
+
 
     }
 
@@ -287,9 +269,6 @@ public class GameController implements Runnable {
                     lastLogTime = now;
                 }
 
-                // Render game state
-                render();
-
             }
 
             if (gameStatus.equals("PAUSED")) {
@@ -316,7 +295,9 @@ public class GameController implements Runnable {
         System.out.println(replayGameLog);
         String oneGameFieldString = replayGameLog.get(replayFieldCounter);
 
+        // index of the character that will be parsed out of the current gameFieldString
         int charIndex = 0;
+        // character at the current position of the current array of the replayGameLog
         char cellType;
         if (replayFieldCounter == replayGameLog.size() - 1 ) {
             gameStatus = "STOPPED";
@@ -378,8 +359,6 @@ public class GameController implements Runnable {
         gamePanel.repaint();
     }
 
-    private void render() {
-    }
 
     private String currentGameFieldString() {
         // using stringbuilder becaus
