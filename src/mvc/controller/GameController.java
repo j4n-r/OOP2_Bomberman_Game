@@ -20,7 +20,6 @@ public class GameController implements Runnable {
     private final int cellSize = 48;
     private Cell[][] gameField;
     private Thread gameThread;
-    private final int FPS = 60; // Assuming a default FPS value
     private Player player1;
     private Player player2;
     public String gameStatus;
@@ -194,19 +193,16 @@ public class GameController implements Runnable {
 
     @Override
     public void run() {
-        // last time the game was updated
-        long lastTime = System.nanoTime();
-        // time between updates based on fps
-        double nsPerUpdate = 1000000000.0 / FPS;
+        int FPS = 60;
         // last time the gameLog was updated
         long lastLogTime = System.nanoTime();
         // ns between gameLogs for the replay
-        double logsPerSecond = 0.5;
-        double nsPerLog = 1000000000.0 * logsPerSecond;
+        double logsPerSecond = 2; // if you change this value, you probably want to change the sleep time in the replay section too
+        double nsPerLog = 1000000000.0 / logsPerSecond;
+
         while (gameThread != null) {
-            long now = System.nanoTime();
-            double delta = (now - lastTime) / nsPerUpdate;
-            double logDelta = (now - lastLogTime) / nsPerLog;
+            long startTime = System.nanoTime();
+            double logDelta = (startTime - lastLogTime) / nsPerLog; // time passed since last log
 
             if (gameStatus.equals("REPLAY")) {
                 // generates replayField based on the replayGameLog
@@ -235,30 +231,23 @@ public class GameController implements Runnable {
                     System.out.println("Player 1 Won the game");
                 }
 
-                // Update game state
-                if (delta >= 1) {
-                    gamePanel.repaint();
-                    lastTime = now;
-                }
-
                 // Add current gameField to gameLog every 0.5 seconds
                 if (logDelta >= 1) {
                     gameLog.add(getCurrentGameFieldAsString());
-                    lastLogTime = now;
+                    lastLogTime = startTime;
                 }
-
+                gamePanel.repaint();
             }
 
             if (gameStatus.equals("PAUSED")) {
 
             }
-            long startTime = System.nanoTime();
-
+            // get the time it took to render the frame and calculate the time to sleep
             long endTime = System.nanoTime();
             long duration = (endTime - startTime) / 1000000;
             long sleepTime = (1000 / FPS) - duration;
 
-
+            // let the thread sleep until the next frame
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
