@@ -1,3 +1,4 @@
 config.txt
 .idea
 build
+/out/
