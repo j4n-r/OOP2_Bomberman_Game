@@ -1,6 +1,9 @@
 # Bomberman Java Implementierung 
 Dies ist eine Java implementierung des Spiels Bomberman. 
 
+![image](https://github.com/user-attachments/assets/252ddaea-1d24-49f4-ae54-a6d3bf192be9)
+
+
 ## Spielregeln
 - Der Spieler kann sich in 4 Richtungen bewegen (oben, unten, links, rechts)
 - Der Spieler kann Bomben legen 
